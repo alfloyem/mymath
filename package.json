@@ -26,6 +26,7 @@
   "dependencies": {
     "@iconify-json/lucide": "1.2.142",
     "@nuxt/icon": "2.5.1",
+    "@nuxtjs/color-mode": "4.0.1",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
     "bcryptjs": "3.0.3",

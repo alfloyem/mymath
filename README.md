@@ -45,7 +45,7 @@ Başarı = doğru / toplam soru × 100. Yanlışlar doğruları götürmez. Bu i
 ## Yapı
 
 - `app/pages`: yönetim, giriş, öğrenci hesabı, kişisel bağlantı.
-- `app/assets/css`: responsive ortak tasarım.
+- `app/assets/css`: YesSirPOS ile aynı HSL tema değişkenleri ve SF Pro Display yazı tipi. Açık/koyu/sistem modu ve renk seçimi `ThemeControls` içinde; tercihler çerezle saklanır. Sıfırlama özel rengi kaldırır. Yüzeyler, kenarlıklar ve metinler ortak değişkenlerden türetilir; buton yazısı kontrast yeterliyse beyaz kalır.
 - `server/api/[...path].ts`: REST isteklerini doğrulayan controller/router.
 - `server/utils/security.ts`: oturum, şifre, token ve giriş sınırlandırma.
 - `server/services/grading.ts`: bağımsız değerlendirme servisi.
