@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cavab vərəqi mühərriki</title>
+  <style>
+    :root {
+      --red: #e8453c;
+      --line: #e0505f;
+      --pink: #fbc9d5;
+      --paper: #fff;
+      --bg: #e9e9e9;
+      --bubble: 16px;
+      --row: 18.4px;
+      --pw: 794px;
+      --ph: 1122px;
+      --scale: 1
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #2a2a2a
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact
+    }
+
+    html,
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif
+    }
+
+    .page {
+      position: relative;
+      width: var(--pw);
+      height: var(--ph);
+      margin: 16px auto;
+      background: var(--paper);
+      overflow: hidden;
+      color: var(--red);
+      zoom: var(--scale);
+      break-after: page;
+      break-inside: avoid
+    }
+
+    h1 {
+      margin: 0;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 19px;
+      color: #e8381f
+    }
+
+    .watermark {
+      position: absolute;
+      left: 50%;
+      top: 56%;
+      transform: translate(-50%, -50%) rotate(-52deg);
+      font-size: 100px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, .085);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: 1px
+    }
+
+    .blk {
+      position: absolute
+    }
+
+    .blk.warn {
+      outline: 2px dashed #f0a000
+    }
+
+    .mc {
+      display: grid;
+      grid-template-columns: 17px auto
+    }
+
+    .mc .num {
+      font-size: 11px;
+      height: var(--row);
+      line-height: var(--row)
+    }
+
+    .mc .rows {
+      border: 1px solid var(--line);
+      border-bottom: 0
+    }
+
+    .row {
+      height: var(--row);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 1px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .row:nth-child(even) {
+      background: var(--pink)
+    }
+
+    .b {
+      flex: none;
+      width: var(--bubble);
+      height: var(--bubble);
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: #fff;
+      font-size: 10px;
+      line-height: 1;
+      padding: 1px 1px 1px 1.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--red)
+    }
+
+    .open-wrap {
+      display: flex
+    }
+
+    .open {
+      display: grid
+    }
+
+    .open .label {
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .open .label span {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 11px;
+      white-space: nowrap
+    }
+
+    .open .cell {
+      height: var(--row);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--line)
+    }
+
+    .open .cell.hd {
+      height: 19px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line)
+    }
+
+    .open .cell.lastrow {
+      border-bottom: 1px solid var(--line)
+    }
+
+    .open .cell.odd {
+      background: var(--pink)
+    }
+
+    .boxes {
+      display: grid
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      font-size: 11px;
+      padding: 1px 2px
+    }
+
+    .editor {
+      position: fixed;
+      right: 12px;
+      bottom: 12px;
+      width: 420px;
+      max-width: calc(100% - 24px);
+      background: #fff;
+      color: #222;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      font-size: 12px;
+      z-index: 9;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, .2)
+    }
+
+    .editor summary {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 600
+    }
+
+    .editor textarea {
+      display: block;
+      width: calc(100% - 16px);
+      height: 240px;
+      margin: 0 8px;
+      font: 11px/1.45 ui-monospace, Menlo, Consolas, monospace;
+      resize: vertical;
+      white-space: pre;
+      overflow: auto
+    }
+
+    .editor .bar {
+      display: flex;
+      gap: 6px;
+      padding: 8px;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .editor button {
+      padding: 5px 10px;
+      border: 1px solid #999;
+      border-radius: 5px;
+      background: #f4f4f4;
+      cursor: pointer
+    }
+
+    #status {
+      font-size: 11px;
+      color: #b00;
+      flex: 1 1 100%
+    }
+
+    /* Çap: dəqiq A4, miqyas 1:1 */
+    @page {
+      size: A4;
+      margin: 0
+    }
+
+    @media print {
+
+      html,
+      body {
+        background: #fff;
+        width: 210mm
+      }
+
+      .page {
+        margin: 0;
+        zoom: 1 !important
+      }
+
+      .page:last-child {
+        break-after: auto
+      }
+
+      .editor {
+        display: none
+      }
+
+      .blk.warn {
+        outline: 0
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="pages"></div>
+  <details class="editor" id="editor">
+    <summary>Sənəd (yalnız dəyişən hissə)</summary>
+    <textarea id="src" spellcheck="false"></textarea>
+    <div class="bar">
+      <button id="apply">Tətbiq et</button><button id="print">Çap / PDF</button><button id="reset">Sıfırla</button>
+      <span id="status"></span>
+    </div>
+  </details>
+
+  <script>
+    /* ===== Sabitlər: səhifə ölçüsü və tema dəyişmir ===== */
+    const BASE = {
+      page: { w: 794, h: 1122 },                 // A4 @96dpi
+      theme: { red: "#e8453c", line: "#e0505f", pink: "#fbc9d5", bubble: "16px", row: "18.4px" }
+    };
+
+    /* ===== Redaktorda görünən yeganə hissə =====
+     startAt   : nömrələmə başlanğıcı
+     watermark : bütün səhifələrdə
+     pages[]   : { title?, watermark?, blocks[] }
+     block     : { type, x, y, ... }
+       choices : count, options (ilkin "ABCDE"), start?
+       boxes   : count | numbers[], cols (1), w (351), h (300), gap (25), start?
+                 numbers verilərsə, sonrakı nömrə sonuncu rəqəm + 1 olur
+       open    : count, columns (3), symbols (ilkin "0123456789"), label, gap
+    */
+    const DEFAULT_DOC = {
+      startAt: 27,
+      watermark: "GÜNEL QASIMOVA",
+      pages: [
+        {
+          title: "9-cu sinif mövzular üzrə sınaq imtahanı", blocks: [
+            { type: "choices", x: 33, y: 76, count: 15, options: "ABCDE" },
+            { type: "choices", x: 33, y: 364, start: 47, count: 5, options: "ABCDE" },
+            { type: "boxes", x: 166, y: 76, start: 42, count: 2, cols: 2, w: 290, h: 381, gap: 14 },
+            { type: "boxes", x: 33, y: 482, count: 2, cols: 2, w: 351, h: 611, gap: 25 }
+          ]
+        },
+        {
+          blocks: [
+            { type: "boxes", x: 33, y: 76, numbers: [46, 52, 53, 54, 55, 56], cols: 2, w: 351, h: 320, gap: 25 }
+          ]
+        }
+      ]
+    };
+
+    const $ = id => document.getElementById(id);
+    const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+    const num = (v, d) => (Number.isFinite(+v) && v !== null && v !== "" && v !== undefined) ? +v : d;
+
+    /* ===== Blok tipləri ===== */
+    const BLOCKS = {
+      choices(b, ctx) {
+        const root = el("div", "mc"), nums = el("div"), rows = el("div", "rows");
+        const opts = [...String(b.options || "ABCDE")];
+        for (let i = 0; i < num(b.count, 1); i++) {
+          nums.append(el("div", "num", ctx.next()));
+          const r = el("div", "row");
+          opts.forEach(o => r.append(el("div", "b", o)));
+          rows.append(r);
+        }
+        root.append(nums, rows);
+        return root;
+      },
+      open(b, ctx) {
+        const wrap = el("div", "open-wrap"), cols = Math.max(1, num(b.columns, 3));
+        const syms = [...String(b.symbols || "0123456789")];
+        wrap.style.gap = num(b.gap, 19) + "px";
+        for (let i = 0; i < num(b.count, 1); i++) {
+          const p = el("div", "open");
+          p.style.gridTemplateColumns = `17px repeat(${cols},20px)`;
+          const lb = el("div", "label"); lb.style.gridRow = `1 / span ${syms.length + 1}`;
+          lb.append(el("span", null, `${b.label || ""}${b.label ? ": " : ""}${ctx.next()}`));
+          p.append(lb);
+          const cell = (c, cls) => el("div", `cell ${cls || ""} ${c % 2 ? "odd" : ""}`);
+          for (let c = 1; c <= cols; c++) p.append(cell(c, "hd"));
+          syms.forEach((s, si) => {
+            for (let c = 1; c <= cols; c++) {
+              const k = cell(c, si === syms.length - 1 ? "lastrow" : "");
+              k.append(el("div", "b", s)); p.append(k);
+            }
+          });
+          wrap.append(p);
+        }
+        return wrap;
+      },
+      boxes(b, ctx) {
+        const g = el("div", "boxes");
+        g.style.gridTemplateColumns = `repeat(${Math.max(1, num(b.cols, 1))},${num(b.w, 351)}px)`;
+        g.style.gridAutoRows = num(b.h, 300) + "px";
+        g.style.gap = num(b.gap, 25) + "px";
+        let list;
+        if (Array.isArray(b.numbers)) {
+          list = b.numbers;
+          const last = Number(list[list.length - 1]);
+          if (Number.isFinite(last)) ctx.n = last + 1;
+        } else list = Array.from({ length: num(b.count, 1) }, () => ctx.next());
+        list.forEach(n => g.append(el("div", "box", n)));
+        return g;
+      }
+    };
+
+    /* ===== Struktur yoxlaması ===== */
+    function validate(d) {
+      if (!d || typeof d !== "object") throw new Error("sənəd obyekt olmalıdır");
+      if (!Array.isArray(d.pages) || !d.pages.length) throw new Error("'pages' massiv olmalıdır");
+      d.pages.forEach((p, i) => {
+        if (!p || !Array.isArray(p.blocks)) throw new Error(`səhifə ${i + 1}: 'blocks' massiv olmalıdır`);
+        p.blocks.forEach((b, j) => {
+          if (!b || typeof b !== "object") throw new Error(`səhifə ${i + 1}, blok ${j + 1}: obyekt olmalıdır`);
+        });
+      });
+    }
+
+    /* ===== Mühərrik ===== */
+    function render(doc) {
+      validate(doc);
+      const { page, theme } = BASE, root = document.documentElement, msgs = [];
+      Object.entries(theme).forEach(([k, v]) => root.style.setProperty("--" + k, v));
+      root.style.setProperty("--pw", page.w + "px");
+      root.style.setProperty("--ph", page.h + "px");
+      root.style.setProperty("--scale", 1);            // ölçmə həmişə 1:1 miqyasda
+      const ctx = { n: num(doc.startAt, 1), next() { return this.n++; } };
+      document.title = String(doc.title || (doc.pages.find(p => p.title) || {}).title || "Cavab vərəqi").trim();
+      const host = $("pages"); host.innerHTML = "";
+
+      doc.pages.forEach((pg, pi) => {
+        const pageEl = el("div", "page");
+        if (pg.title) pageEl.append(el("h1", null, pg.title));
+        const wm = pg.watermark ?? doc.watermark;
+        if (wm) pageEl.append(el("div", "watermark", wm));
+        host.append(pageEl);
+        const placed = [];
+        pg.blocks.forEach((b, bi) => {
+          const make = BLOCKS[b.type];
+          if (!make) { msgs.push(`Səhifə ${pi + 1}, blok ${bi + 1}: naməlum tip "${b.type}"`); return; }
+          if (b.start != null) ctx.n = num(b.start, ctx.n);
+          const x = num(b.x, 0), y = num(b.y, 0);
+          const w = el("div", "blk");
+          w.style.left = x + "px"; w.style.top = y + "px";
+          w.append(make(b, ctx));
+          pageEl.append(w);
+          placed.push({ w, x, y, bi });
+        });
+        const rect = p => ({ l: p.x, t: p.y, r: p.x + p.w.offsetWidth, d: p.y + p.w.offsetHeight });
+        placed.forEach((p, i) => {
+          const a = rect(p);
+          if (a.l < 0 || a.t < 0 || a.r > page.w || a.d > page.h) { p.w.classList.add("warn"); msgs.push(`Səhifə ${pi + 1}, blok ${p.bi + 1} səhifədən çıxır`); }
+          placed.slice(i + 1).forEach(q => {
+            const c = rect(q);
+            if (a.l < c.r && c.l < a.r && a.t < c.d && c.t < a.d) { p.w.classList.add("warn"); q.w.classList.add("warn"); msgs.push(`Səhifə ${pi + 1}: blok ${p.bi + 1} və ${q.bi + 1} üst-üstə düşür`); }
+          });
+        });
+      });
+      $("status").style.color = msgs.length ? "#b00" : "#070";
+      $("status").textContent = msgs.length ? msgs.join(" · ") : "";
+      fit();                                            // ölçmədən sonra ekrana sığdır
+    }
+    function fit() {
+      const w = document.documentElement.clientWidth || innerWidth;
+      document.documentElement.style.setProperty("--scale", Math.min(1, (w - 16) / BASE.page.w));
+    }
+
+    /* ===== Redaktor (blok başına bir sətir) ===== */
+    const J = JSON.stringify;
+    const pretty = d => `{\n${d.title ? ` "title": ${J(d.title)},\n` : ""} "startAt": ${J(d.startAt)},\n "watermark": ${J(d.watermark)},\n "pages": [\n` +
+      d.pages.map(p => `  {${p.title ? ` "title": ${J(p.title)},` : ""}\n   "blocks": [\n` +
+        p.blocks.map(b => "    " + J(b)).join(",\n") + "\n   ]}").join(",\n") + "\n ]\n}";
+
+    const KEY = "omr-doc-v2";                           // DEFAULT_DOC dəyişəndə versiyanı artır
+    let doc = DEFAULT_DOC;
+    try { const s = localStorage.getItem(KEY); if (s) { const d = JSON.parse(s); validate(d); doc = d; } } catch (e) { doc = DEFAULT_DOC; }
+
+    function apply() {
+      let d;
+      try { d = JSON.parse($("src").value.replace(/^\uFEFF/, "")); }
+      catch (e) { $("status").style.color = "#b00"; $("status").textContent = "JSON sintaksis xətası: " + e.message; return; }
+      try { render(d); }
+      catch (e) { $("status").style.color = "#b00"; $("status").textContent = "Struktur xətası: " + e.message; return; }
+      doc = d;
+      try { localStorage.setItem(KEY, J(doc)); } catch (e) { }
+    }
+    $("apply").onclick = apply;
+    $("print").onclick = () => { document.documentElement.style.setProperty("--scale", 1); print(); fit(); };
+    $("reset").onclick = () => { try { localStorage.removeItem(KEY); } catch (e) { } doc = DEFAULT_DOC; $("src").value = pretty(doc); render(doc); };
+    addEventListener("resize", fit);
+    addEventListener("beforeprint", () => document.documentElement.style.setProperty("--scale", 1));
+    addEventListener("afterprint", fit);
+
+    /* Geniş ekranda redaktor açıq, planşet/telefonda bağlı başlayır */
+    if (innerWidth >= 1100) $("editor").open = true;
+    $("src").value = pretty(doc);
+    try { render(doc); } catch (e) { doc = DEFAULT_DOC; $("src").value = pretty(doc); render(doc); }
+  </script>
+</body>
+
+</html>

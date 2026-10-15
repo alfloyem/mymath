@@ -1,0 +1,31 @@
+{
+ "mode": "imtahan",
+ "title": "SINAQ",
+ "info": "Ad, soyad: ______________________",
+ "watermark": "GÜNEL QASIMOVA",
+ "startAt": 1,
+ "cols": 2,
+ "letters": "abcde",
+ "blocks": [
+  {"type":"q","t":"$a<\\frac{1}{2}$, $b<-\\frac{1}{3}$ və $c>\\frac{1}{4}$ olarsa, $a+b-c$ üçün hansı münasibət doğrudur?","o":["$a+b-c>-\\frac{1}{12}$","$a+b-c<-\\frac{1}{12}$","$a+b-c<6$","$a+b-c<\\frac{1}{6}$","$a+b-c>-\\frac{1}{6}$"]},
+  {"type":"q","t":"$\\begin{cases} \\text{ƏKOB}(a;b) - \\text{ƏBOB}(a;b) = 45, \\\\ \\text{ƏKOB}(a;b) + \\text{ƏBOB}(a;b) = 55 \\end{cases}$ tənliklər sistemində $ab$ hasilini tapın.","o":["250","125","500","100","200"]},
+  {"type":"q","t":"$\\frac{1}{2 \\cdot 4} + \\frac{1}{4 \\cdot 6} + \\ldots + \\frac{1}{2n(2n+2)}$ cəmini hesablayın.","o":["$\\frac{n}{4(n+1)}$","$\\frac{3n}{4(n+1)}$","$\\frac{n}{3(n+1)}$","$\\frac{n}{2(n+1)}$","$\\frac{3n}{2(n+1)}$"],"space":38},
+  {"type":"q","t":"$\\frac{2x-3}{4\\sqrt{6}-10} > 5+2\\sqrt{6}$ bərabərsizliyini həll edin.","o":["$(1; +\\infty)$","$(\\frac{1}{2}; +\\infty)$","$(-\\infty; -\\frac{1}{2})$","$(-\\frac{1}{2}; +\\infty)$","$(-\\infty; \\frac{1}{2})$"],"space":38},
+  {"type":"q","t":"$a$-nın hansı qiymətlərində $\\begin{cases} ax-2 \\ge 0, \\\\ 8x-a \\le 0 \\end{cases}$ bərabərsizliklər sisteminin həlli var?","o":["$(0; +\\infty)$","$(0; 4)$","$(-\\infty; 0) \\cup [4; +\\infty)$","$(-\\infty; 4]$","$(-\\infty; 0) \\cup (0; +\\infty)$"]},
+  {"type":"q","t":"Birinci boru ilə boş hovuz 4 saata, ikinci ilə 6 saata dolur, üçüncü boru isə dolu hovuzu 12 saata boşaldır. Hər üç boru eyni vaxtda qoşularsa, boş hovuzun yarısı neçə saata dolar?","o":["2","1,2","1,5","1,6","1,4"]},
+  {"type":"q","t":"Qrafik hansı funksiyaya uyğundur?","o":["$y=x^2$","$y=\\frac{1}{x}$","$y=2x+3$","$y=\\sqrt{x}$","$y=2^x$"],"fig":{"type":"fig","w":130,"h":130,"o":[65,65,24],"items":[["axes",-2.5,2.5,-2.5,2.5],["text",126,57,"x"],["text",75,126,"y"],["text",57,57,"0"],["plot","1/x",0.4,2.3],["plot","1/x",-2.3,-0.4]]}},
+  {"type":"q","t":"$f(x)$ sabit funksiyası üçün $f(1) \\cdot f(3) \\cdot f(9) = -27$ olarsa, $f(64)$-ü hesablayın.","o":["3","$-4$","$-3$","4","64"]},
+  {"type":"q","t":"$x \\neq 5$ və $f(x) = \\frac{kx+5}{5x-25}$ sabit funksiya olarsa, $k + f(2)$ cəmini tapın.","o":["0,8","$-1,6$","$-0,8$","$-1,2$","1,2"]},
+  {"type":"q","t":"$y=x^2+2x+5$ funksiyasının qiymətlər çoxluğunu tapın.","o":["$(-\\infty; 0)$","$[0; +\\infty)$","$(4; +\\infty)$","$(-\\infty; -5]$","$[4; +\\infty)$"]},
+  {"type":"q","t":"Parabola hansı funksiyanın qrafikidir?","o":["$y=-3(x+1)(x-2)$","$y=-\\frac{3}{2}(x+1)(x-2)$","$y=-\\frac{2}{3}(x-1)(x+2)$","$y=(x+1)(x-2)$","$y=-x^2+3$"],"fig":{"type":"fig","w":140,"h":140,"o":[52,30,24],"items":[["axes",-2,3,-1,4],["text",134,22,"x"],["text",62,134,"y"],["text",44,22,"0"],["text",22,20,"-1"],["text",108,20,"2"],["text",42,102,"3"],["plot","-1.5*(x+1)*(x-2)",-1.3,2.3]]}},
+  {"type":"q","t":"$ax^2+bx+c=0$ tənliyinin həqiqi kökləri yoxdur. $a+b+c>0$ olarsa, $c$ parametrinin ən kiçik tam qiymətini tapın.","o":["2","$-2$","0","$-1$","1"]},
+  {"type":"q","t":"6 saata çəndəki yanacağın $15\\%$-ni sərf edən mühərrik çəndəki bütün yanacağı neçə saata sərf edər?","o":["25","45","35","40","30"]},
+  {"type":"q","t":"Hər bölgüyə eyni vaxt sərf etməklə taxta parçasını 3 hissəyə ayırmaq üçün 4 dəqiqə lazımdır. Bu taxta parçasını 6 hissəyə ayırmaq üçün neçə dəqiqə lazımdır?","o":["10","12","6","14","7"]},
+  {"type":"q","t":"Çəndəki suyun $20\\%$-i buxarlandıqdan sonra qalan suyun miqdarını neçə faiz artırmaq lazımdır ki, çəndə əvvəlki qədər su olsun?","o":["35","30","25","40","32"]},
+  {"type":"q","t":"Simmetriya oxunun tənliyi $x=-2$ olan $y=x^2+(p+1)x+q$ funksiyasının qrafikinin təpə nöqtəsi absis oxu üzərində yerləşir. $p+q$ cəmini tapın."},
+  {"type":"q","t":"$a$-nın hansı qiymətində $f(x)=(a^2-8a+15)x+a^2-16$ funksiyasının qrafiki yalnız III və IV rüblərdən yerləşir?"},
+  {"type":"q","t":"Uzunluğu $24\\text{ sm}$, eni $20\\text{ sm}$ olan düzbucaqlı formalı vərəqdən elə bərabər kvadratlar kəsilməlidir ki, vərəqin hər hansı hissəsi artıq qalmasın. Bu kvadratların tərəfinin uzunluğu ənam çox neçə ola bilər və bu zaman neçə kvadrat alınacaq?"},
+  {"type":"q","t":"$\\frac{a}{b} = \\frac{c}{d} = k$ və $\\frac{xa + (y-6)c}{xb - (y-18)d} = k$ olarsa, $y$-i tapın ($k \\neq 0$)."},
+  {"type":"q","t":"$n$-in neçə tam qiymətində $\\frac{(n+5)(n-5)+31}{n}$ ifadəsi tam qiymətlər alar?"}
+ ]
+}
