@@ -90,7 +90,7 @@
   "createPasswordLink": "Create password link",
   "personalLink": "Personal access link",
   "linkExpiry": "Valid for 30 days. A new link revokes the previous one.",
-  "linkLabel": "Personal link",
+  "linkLabel": "Link",
   "linkApproval": "The password activates after your approval.",
   "copyLink": "Copy link",
   "copied": "Link copied.",

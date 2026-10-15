@@ -16,15 +16,15 @@ async function submit() {
 <template>
   <main class="auth-page"><section class="panel auth-card">
     <header class="auth-head"><div class="brand"><Icon name="lucide:calculator" size="23" class="brand-mark" />MyMath</div><ThemeControls /></header>
-    <h1>{{ t('setPassword') }}</h1>
+    <h1 class="mb-2">{{ t('setPassword') }}</h1><p v-if="invite" class="person-name invite-name">{{ invite.firstName }}</p>
     <div v-if="loadError" class="error">{{ errorMessage(loadError.statusMessage, 'invalidLink') }}</div>
     <template v-else-if="invite">
-      <template v-if="done"><div class="notice mb-5">{{ t('passwordSent') }}</div><p class="text-xs muted mb-4">{{ t('studentId') }}: <strong class="break-all">{{ invite.studentId }}</strong></p><NuxtLink to="/giris" class="btn">{{ t('login') }}</NuxtLink></template>
+      <template v-if="done"><div class="notice mb-5">{{ t('passwordSent') }}</div><NuxtLink :to="{path:'/giris',query:{student:invite.studentId}}" class="btn">{{ t('login') }}</NuxtLink></template>
       <form v-else @submit.prevent="submit">
-        <p class="mb-5">{{ invite.firstName }}</p>
+        
         <div class="field"><label for="new-password">{{ t('newPassword') }}</label><input id="new-password" v-model="password" type="password" minlength="8" maxlength="72" autocomplete="new-password" required></div>
         <div class="field"><label for="confirm">{{ t('repeatPassword') }}</label><input id="confirm" v-model="confirmPassword" type="password" minlength="8" maxlength="72" autocomplete="new-password" required></div>
-        <p class="text-xs muted mb-5">{{ t('passwordWait') }}</p>
+        
         <p v-if="error" class="error mb-4" role="alert">{{ error }}</p><button class="btn primary w-full" :disabled="busy">{{ t('submitApproval') }}</button>
       </form>
     </template>

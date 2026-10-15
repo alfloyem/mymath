@@ -90,7 +90,7 @@
   "createPasswordLink": "Şifre bağlantısı oluştur",
   "personalLink": "Kişisel erişim bağlantısı",
   "linkExpiry": "30 gün geçerli. Yeni bağlantı önceki bağlantıyı iptal eder.",
-  "linkLabel": "Kişisel bağlantı",
+  "linkLabel": "Bağlantı",
   "linkApproval": "Şifre, onayınızdan sonra etkinleşir.",
   "copyLink": "Bağlantıyı kopyala",
   "copied": "Bağlantı kopyalandı.",
