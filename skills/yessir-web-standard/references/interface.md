@@ -14,6 +14,7 @@ Bu tercihler MyMath çalışmasında kullanıcı tarafından istendi ve YesSirPO
 ## Sidebar ve mobil
 
 - Masaüstü: yaklaşık 240–256 px tam, 76–80 px ikon modu; açılma/daralma tercihi saklanır. Marka/menü düğmesiyle geçiş; ikon modunda erişilebilir isimler ve tooltip korunur.
+- YesSirPOS gibi sidebar'ın kendi sayısal genişliğini 300 ms boyunca geçir; içerik flex ile birlikte daralsın. İkon rayının yatay konumu ve alt düğmelerin düzeni sabit kalsın. Metni `display:none` ile aniden kaldırma; genişlik/opacity/padding geçişleri kullan. Açılma sırasında `justify-content` veya `flex-direction` değiştirerek sıçrama oluşturma.
 - 1024 px altı: üstte kısa menü çubuğu; soldan açılan drawer, arkasında perde. Link seçimi, Escape ve perde tıklaması menüyü kapatır. Mobil drawer, masaüstünde daraltılmış olsa da tam genişlikte açılır.
 - Açık drawer arka plan kaymasını engeller, klavye odağını içinde tutar; kapanınca odağı açan düğmeye döndürür. Gizliyken kontroller odaklanamaz.
 - Sayfanın içerik alanı `min-width:0` ile daralır; sidebar ve tablo birlikte taşma üretmez. Mobil modal gerektiğinde alttan sheet olarak açılır; içeriği ve güvenli alan boşluğu korunur.
