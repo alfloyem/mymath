@@ -76,3 +76,7 @@ Oturumlar HttpOnly/SameSite=Lax çerezlerinde, SHA-256 token özetiyle DB'de tut
 16 Ekim 2026 bağımlılık taramasında `braces@3.0.3` ve `node-forge@1.4.0` için henüz yayımlanmış düzeltme bulunmadı. İlk `npm audit` taraması bağımlılık zinciriyle birlikte 11 yüksek önem kaydı bildirdi. Prisma'nın düzeltme sürümü 7.10.1 uygulandı. Kalanlar Nuxt/Nitro'nun dosya eşleme ve geliştirme HTTPS yardımcılarına bağlıdır; bu durum güvenlik açısından üretime hazır olduğumuz iddiası değildir. Üretim öncesi güncel tarama ve üst paket düzeltmeleri tekrar kontrol edilmelidir. Kaynaklar: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm ve https://github.com/advisories/GHSA-86w9-cpqp-85rv.
 
 Güncel arayüz, veri yükleme ve güvenlik kontrolünün kapsamı/sınırları: [docs/verification.md](docs/verification.md).
+
+## SPA ve veri önbelleği
+
+Nuxt ilk sayfayı sunucuda oluşturur; sonraki gezinme istemcide gerçekleşir. Yönetim bölümleri ilk açılışta kurulur ve tekrar ziyaretlerde filtre, sıralama ve sayfa durumunu korur. Öğrenci listeleri/profiller 5 dakika, şifre bildirimleri 15 saniye süreyle yalnız oturum belleğinde tutulur (en fazla 32 kaynak). Aynı kaynağın eşzamanlı istekleri birleştirilir; kayıt değişiklikleri ilgili önbelleği geçersizleştirir. Başlıktaki yenileme düğmesi güncel bölümü yeniden sorgular. Çıkışta önbellek temizlenir; kişisel veriler disk önbelleğine yazılmaz. PWA/offline desteği eklenmemiştir. Listelerin sayfalaması halen istemcidedir.

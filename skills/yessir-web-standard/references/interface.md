@@ -51,3 +51,13 @@ MyMath hesap güvenliği: şifre bağlantısı ve bekleyen şifre onayları öğ
 - İstemci tarafı sayfalama, sunucudan kademeli yükleme değildir. Gerçek veri yükleme davranışını açıkça belirt; büyük veri/yük testi yapılmadıysa ölçek garantisi verme. Liste cevabına kullanılmayan ağır JSON veya gizli alanlar koyma.
 - JSON boyutunu yalnız Content-Length'e veya parse sonrası uzunluğa göre sınırlama; akış sırasında da belleği sınırla. Yetki, origin/CSRF ve durum geçişlerini gerçek HTTP/veritabanı kontrolleriyle doğrula.
 - Güncel bağımlılık taramasındaki açık bulguları saklama. Başarılı test/derleme, sıfır güvenlik sorunu veya tarayıcıda görsel doğrulama iddiası değildir.
+
+## SPA ve önbellek
+
+- Nuxt istemci router/NuxtLink ile gezin; normal bölüm geçişinde tam sayfa yenileme yapma. İlk HTML'in SSR gelmesi SPA gezinmesini engellemez. Sırf cache isteniyor diye SSR'yi veya auth kontrolünü kapatma; PWA/service worker'ı ayrıca istenmeden ekleme.
+- Bölümü ilk ziyaretinde oluştur; ziyaret edilmiş bölümleri tekrar kurmadan gizle/göster. Filtre, seçim, kaydırma/sayfalama gibi durumu bölüm bazında koru. Cache kullanırken tüm gizli bölümleri başlangıçta ağır verileriyle yükleme.
+- Veri cache'i ile DOM/görünüm korunmasını ayrı ele al. Aynı anahtardaki eşzamanlı istekler birleşsin; başarılı ve süresi geçmemiş veri tekrar kullanılsın. Süre/kapasite sınırı açık olsun; MyMath'te liste/profil 5 dakika ve en çok 32 kaynak, bildirim 15 saniye kullanılır.
+- Ekleme/düzenleme/silme/transfer/sonuç/onay sonrası ilgili liste, profil ve sayacı güncelle veya geçersizleştir; ilgisiz kaynakları sebepsiz yenileme. Kullanıcıya küçük bir manuel yenileme kontrolü ver.
+- Eski/iptal edilmiş yanıt yeni veriyi ezmesin. Cache temizleme devam eden isteği de geçersizleştirsin; hata yanıtları cache'e alınmasın. Hızlı farklı filtrelerde gereksiz eski isteği iptal et; aynı isteği yeniden başlatma.
+- Kişisel veriyi localStorage, Cache Storage, paylaşımlı sunucu cache'i veya service worker'a otomatik yazma. Çıkışta/oturum geçersizliğinde ilgili bellek ve Nuxt payload verisini temizle. Gizli sayfa ve API yanıtlarının `no-store` politikası, uygulama içi oturum belleği cache'inden ayrıdır.
+- Kimlik doğrulama, şifre ve izin/onay mutasyonlarını cache'leme; statik hash'li JS/CSS/font varlıklarının cache'ini bunlardan ayır. Gerçekte uygulanmayan çevrimdışı destek veya sunucu sayfalaması iddiasında bulunma.

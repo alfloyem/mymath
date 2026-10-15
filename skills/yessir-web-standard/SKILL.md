@@ -12,6 +12,8 @@ Bu kullanıcının web uygulamalarında tercih ettiği teknoloji ve tasarım sta
 | Alan | Varsayılan tercih | Uygulama kuralı |
 | --- | --- | --- |
 | Uygulama | Nuxt, Vue, TypeScript | Yeni benzer projelerde Nuxt 4 / Vue 3 ailesi; mevcut projede kendi manifesti esas. |
+| Gezinme | SPA, istemci router | Tam belge yüklemesi yerine istemci geçişleri; bölüm durumunu ve gerekli görünüm örneklerini koru. İlk yanıtın SSR olması bu davranışla uyumludur. |
+| Önbellek | Oturum belleğinde sınırlı kaynak cache'i | Tekrarlayan aynı isteği birleştir, geçerli veriyi tekrar kullan, mutasyonda ilgili kaynağı geçersizleştir ve çıkışta temizle. |
 | Çalışma ortamı | Node.js LTS | Nuxt ve diğer bağımlılıklarla uyumlu sürümü `engines` içinde belirt. |
 | Paket yöneticisi | pnpm | İlk kurulumdan itibaren kullan; `packageManager` alanı ve `pnpm-lock.yaml` ekle. npm/yarn kilit dosyaları oluşturma. |
 | Stil | Tailwind CSS | Nuxt ile uyumlu entegrasyonu ve ortak CSS değişkenlerini kullan. |
@@ -39,6 +41,7 @@ Sürüm numaralarını bu belgeden ezbere kopyalama. Mevcut `package.json`, kili
 - Tüm yüzeyler, kenarlıklar, metinler, ikonlar ve etkileşim durumları ortak temaya bağlı olsun; sayfa içinde bağımsız sabit bir palet kurma.
 - Tema uygularken [references/theme.md](references/theme.md) dosyasını oku. Başka işlerde bu ayrıntıyı yüklemene gerek yok.
 - Tablo, sidebar, mobil görünüm, animasyon veya i18n işinde [references/interface.md](references/interface.md) dosyasını oku. Düşük gölge kullanımı, ortak tablo bileşeni ve açılır/kapanır responsive sidebar bu dilin parçalarıdır.
+- Gezinme/önbellek işinde [references/interface.md](references/interface.md) içindeki SPA bölümünü uygula. Cache'i PWA, service worker veya kalıcı hassas veri depolamasıyla karıştırma.
 
 ## Çalışma düzeni
 

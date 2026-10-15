@@ -10,9 +10,10 @@
 
 ## Kanıt ve sınırlar
 
-- 16 birim testi: değerlendirme, çeviri anahtarları/yer tutucular, origin, tablo sıralaması, tema kontrastı, parçalı JSON/boyut sınırı.
+- 20 birim testi: değerlendirme, çeviri anahtarları/yer tutucular, origin, tablo sıralaması, tema kontrastı, parçalı JSON/boyut sınırı ve kaynak önbelleği. Önbellek testleri ortak istek, süre aşımı, hedefli geçersizleştirme, eski yanıtın engellenmesi, hata sonrası yeniden deneme ve kapasite sınırını kontrol eder. Tip kontrolü ve üretim derlemesi başarılı.
 - Tip kontrolü başarılı. HTTP üzerinden admin girişi, yetkisiz istek 401, yabancı origin 403, bozuk JSON 400, chunked gövde 413, hafif pano/bildirim yanıtları ve ID göstermeyen öğrenci giriş ekranı kontrol edildi.
 - Tarayıcı kullanılmadı. Dışarı tıklama, görsel hizalama ve hareketler gerçek tarayıcıda gözle doğrulanmadı; kod düzeyinde düzeltildi.
 - Grup/sınav listeleri ilk pano yüklemesinde, öğrenci listesi seçilen grup açılırken alınır. Sayfalama şu an istemcidedir; bütün listeler sunucu tarafında sayfalanmış değildir. Büyük veri/hacim/yük testi yapılmadı.
+- SPA bölümleri ilk ziyaretlerinde kurulur, sonraki geçişlerde filtre/sıralama/sayfalama durumuyla korunur. Öğrenci listeleri ve profiller oturum belleğinde 5 dakika, bildirimler 15 saniye tutulur; en fazla 32 kaynak saklanır. Eşzamanlı aynı istekler birleşir; değişiklikler ilgili kaynakları geçersizleştirir. Elle yenileme mevcut veriyi yeniden alır. Çıkışta bellek ve Nuxt verileri temizlenir. Kişisel sayfa/API yanıtları kalıcı HTTP önbelleğine alınmaz. Gerçek tarayıcı ağ sayımı yapılmadı.
 - Giriş sınırlandırması tek süreç belleğinde. Çok sunuculu üretimde ortak depoya taşınması gerekir. Üretim HTTPS, DB yetkileri/yedekleri bu kontrolde doğrulanmadı.
 - Güncel pnpm taraması iki yüksek önem bulgusu bildiriyor: `braces@3.0.3` ([GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)) ve `node-forge@1.4.0` ([GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv)). Registry'de en yeni yayımlanmış sürümler kontrol sırasında hâlâ bunlardı; önerilen 3.0.4 / 1.4.1 henüz yayımlanmış değildi. Dolaylı Nuxt/Nitro bağımlılıklarıdır. Güvenlik riski yoktur iddiası yapılmaz.
