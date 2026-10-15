@@ -1,0 +1,4 @@
+interface:
+  display_name: "YESSIR Web Standardı"
+  short_description: "Teknoloji, pnpm, tema ve minimal tasarım kuralları"
+  default_prompt: "Bu projeyi $yessir-web-standard ile teknoloji, tema ve minimal tasarım tercihlerimize göre oluştur veya düzenle."
