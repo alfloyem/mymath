@@ -9,7 +9,7 @@ export const verifyPassword = (password: string, hashed: string) => compare(pass
 export async function currentSession(event: H3Event) {
   const token = getCookie(event, 'mymath_session')
   if (!token) return null
-  const session = await db.session.findUnique({ where: { tokenHash: digest(token) }, include: { admin: true, student: true } })
+  const session = await db.session.findUnique({ where: { tokenHash: digest(token) }, select: { id: true, adminId: true, studentId: true, expiresAt: true, admin: { select: { username: true } }, student: { select: { id: true, firstName: true } } } })
   if (!session || session.expiresAt < new Date()) return null
   return session
 }

@@ -1,6 +1,7 @@
 import { z, ZodError } from 'zod'
-import { createError, defineEventHandler, getRouterParam, getHeader, readBody, getCookie, deleteCookie, getQuery, getRequestURL } from 'h3'
+import { createError, defineEventHandler, getRouterParam, getHeader, setHeader, getCookie, deleteCookie, getQuery, getRequestURL } from 'h3'
 import { db } from '../utils/db'
+import { readBoundedJson } from '../utils/body'
 import { createSession, currentSession, digest, hashPassword, randomToken, rateLimit, requireAdmin, verifyPassword } from '../utils/security'
 import { grade } from '../services/grading'
 
@@ -22,9 +23,9 @@ export default defineEventHandler(async event => {
   const body = async () => {
     const length = Number(getHeader(event, 'content-length') || 0)
     if (length > 256000) throw createError({ statusCode: 413, statusMessage: 'Dosya en fazla 256 KB olabilir.' })
-    const value = await readBody(event)
-    if (JSON.stringify(value ?? '').length > 256000) throw createError({ statusCode: 413 })
-    return value
+    if (getHeader(event, 'content-type')?.split(';')[0]?.trim().toLowerCase() !== 'application/json') throw createError({ statusCode: 415, statusMessage: 'JSON veri gerekli.' })
+    try { return await readBoundedJson(event.node.req) }
+    catch (error: any) { if (error.statusCode === 413) setHeader(event, 'Connection', 'close'); throw error }
   }
   try {
     if (path.join('/') === 'auth/me' && method === 'GET') {
@@ -72,13 +73,16 @@ export default defineEventHandler(async event => {
     }
     const adminId = await requireAdmin(event)
     const audit = (action: string, targetId: string) => ({ actorId: adminId, action, targetId })
+    if (path[0] === 'password-requests' && !path[1] && method === 'GET') {
+      return await db.passwordRequest.findMany({ where: { status: 'PENDING' }, select: { id: true, createdAt: true, student: { select: { id: true, firstName: true, lastName: true } } }, orderBy: { createdAt: 'desc' } })
+    }
     if (path[0] === 'dashboard' && method === 'GET') {
       const [groups, requests, exams] = await Promise.all([
         db.group.findMany({ orderBy: [{ position: 'asc' }, { createdAt: 'asc' }], include: { _count: { select: { students: true, exams: true } } } }),
         db.passwordRequest.findMany({ where: { status: 'PENDING' }, select: { id: true, createdAt: true, student: { select: publicStudent } }, orderBy: { createdAt: 'desc' } }),
         db.exam.findMany({ include: { group: { select: { name: true } }, _count: { select: { results: true } } }, orderBy: [{ month: 'desc' }, { createdAt: 'desc' }] })
       ])
-      return { groups, requests, exams }
+      return { groups, requests, exams: exams.map(({ answerKey, topics, ...exam }) => ({ ...exam, questionCount: (answerKey as string[]).length })) }
     }
     if (path[0] === 'groups') {
       if (method === 'POST' && !path[1]) {
