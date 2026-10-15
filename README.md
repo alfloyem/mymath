@@ -39,12 +39,16 @@ Seed mevcut adminin şifresini değiştirmez ve ikinci admin oluşturmaz. Tek ad
 - **Sınavlar:** grup, ay, başlık, A–E cevap anahtarı ve isteğe bağlı soru başına konu. Sınavı kapatma/yeniden açma. Anahtar mevcut sonuçların anlamını korumak için oluşturulduktan sonra değiştirilmez; hatalı sınav silinip yeniden oluşturulabilir.
 - **Profil:** açık sınava cevap girme veya TXT/CSV/JSON cevap dosyası yükleme; doğru/yanlış/boş, yüzde başarı, konu analizi ve ay filtresi. Aynı öğrencinin aynı sınav sonucu güncellenir. CSV burada yalnız şık dizisini ifade eder; başlıklı tablo değildir. Örnek: `A B - D E`. JSON: `{ "answers": ["A", "B", null, "D", "E"] }`.
 - **Öğrenci girişi:** öğrenci ID + onaylı şifre ile yalnız kendi sonuçlarını görür.
+- **Arayüz:** masaüstünde daralabilen sidebar, mobilde perdeyle açılan menü; ortak tabloda sıralama, sayfalama ve sabit başlık. Grup sırası değişimleri, hover/basış ve modallar animasyonludur; azaltılmış hareket tercihi desteklenir.
+- **Görünüm ve dil:** renk şeridi ve renk sıfırlama düğmesi, açık/koyu/sistem modu; Türkçe, Azərbaycanca, English, Русский. Dil ve sidebar tercihi çerezlerde saklanır. Yeni öğrenci formunda tarih alanı gösterilmez; önceden kaydedilmiş doğum tarihleri korunur.
 
 Başarı = doğru / toplam soru × 100. Yanlışlar doğruları götürmez. Bu ilk sürümde PDF/görselden soru çözme, OCR, açık uçlu cevap değerlendirme ve sembolik matematik motoru yoktur. Dosya yüklemesi cevap verilerini okur; orijinal dosya içeriği saklanmaz, sonuçla birlikte dosya adı saklanır. İkinci aşama motoru `server/services` altına eklenebilir; veri modeli ve arayüz temel akışları hazırdır.
 
 ## Yapı
 
 - `app/pages`: yönetim, giriş, öğrenci hesabı, kişisel bağlantı.
+- `app/components/AppTable.vue`, `AppSidebar.vue`: ortak tablo ve responsive gezinme.
+- `i18n/locales`: arayüz sözlükleri; kullanıcı verileri ve API enum değerleri çevrilmez.
 - `app/assets/css`: YesSirPOS ile aynı HSL tema değişkenleri ve SF Pro Display yazı tipi. Açık/koyu/sistem modu ve renk seçimi `ThemeControls` içinde; tercihler çerezle saklanır. Sıfırlama özel rengi kaldırır. Yüzeyler, kenarlıklar ve metinler ortak değişkenlerden türetilir; buton yazısı kontrast yeterliyse beyaz kalır.
 - `server/api/[...path].ts`: REST isteklerini doğrulayan controller/router.
 - `server/utils/security.ts`: oturum, şifre, token ve giriş sınırlandırma.

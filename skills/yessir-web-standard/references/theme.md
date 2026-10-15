@@ -19,6 +19,9 @@ Yeni projede örnek yüzey ilişkileri: açık modda uygulama zemini `hsl(var(--
 
 ## Davranış
 
+- Renk ayarı için YesSirPOS görünüm ekranındaki sade düzeni kullan: sürekli gökkuşağı hue şeridi ve yanında mevcut ana renkte küçük yuvarlak sıfırlama düğmesi. Sıfırlama ikonu hover/focus'ta belirir; dokunmatik ekranda görünür kalır. Her renk için ayrı kart veya geniş dekoratif palet ekleme.
+- Referans hesap: ana doygunluk %85, açık ana parlaklık %50, koyu ana parlaklık %58. RGB ağırlıklı parlaklık 135'i geçerse açık mod metin doygunluğu %97, metin parlaklığı `max(30, round(50 - (brightness - 120) * .28))`; koyu mod %85/%58 kalır. CSS varsayılanı ile kullanıcı rengi seçildiğindeki hesap farklı olabilir; sıfırlamada inline override'ları sil.
+
 - Renk değişince yalnız düğme değil bütün arayüz tutarlı şekilde değişsin. Açık/koyu mod yüzeylerini aynı hue ailesinden türet.
 - Marka rengi üzerinde beyaz metni, kontrast en az 4.5:1 ise koru; yetmiyorsa siyaha geç. Kararı HSL -> RGB -> sRGB bağıl parlaklık üzerinden hesapla. Normal durumlarda beyaz yazıyı gereksiz yere siyaha dönüştürme.
 - Açık modda çok parlak hue'lar için marka metni/ikon rengini okunabilir olacak şekilde ayarla. Mevcut `computeBrandColors` ve kontrast yardımcıları varsa onları kullan.

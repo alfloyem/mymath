@@ -21,7 +21,8 @@ export function themeStyles(value: number | null) {
   const sat = brightness > 135 ? 97 : 85
   const lit = brightness > 135 ? Math.max(30, Math.round(50 - (brightness - 120) * .28)) : 50
   return {
-    '--brand-hue': `${h}`, '--text-primary-sat': `${sat}%`, '--text-primary-lit': `${lit}%`,
+    '--brand-hue': `${h}`, '--brand-sat': '85%', '--brand-lit': '50%', '--brand-lit-dark': '58%',
+    '--text-primary-sat': `${sat}%`, '--text-primary-lit': `${lit}%`,
     '--text-on-primary-light': textOnColor(h, sat, lit), '--text-on-primary-dark': textOnColor(h, 85, 58)
   }
 }
