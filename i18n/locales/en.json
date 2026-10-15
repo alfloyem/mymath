@@ -171,5 +171,8 @@
   "invalidAnswer": "Only A, B, C, D, E or blank answers are allowed.",
   "expiredLink": "Link invalid or expired. Request a new link.",
   "topicCountMismatch": "Provide one topic per question or leave topics empty.",
-  "invalidGroupOrder": "Each group must appear exactly once."
+  "invalidGroupOrder": "Each group must appear exactly once.",
+  "security": "Security",
+  "securityPending": "Security · approval pending",
+  "pendingPassword": "Password awaiting approval"
 }

@@ -44,3 +44,5 @@ Yeni projede örnek yüzey ilişkileri: açık modda uygulama zemini `hsl(var(--
 ```
 
 Font ailesini sadece bir bileşene değil ortak tipografi katmanına bağla. Uzak kaynak kullanılıyorsa ağ bağımlılığı vardır; fontun yüklendiğini ölçmeden görsel olarak doğrulandığını söyleme. Dağıtılacak yerel font dosyaları için lisansı varsayma.
+
+MyMath için kullanıcı tarafından seçilen varsayılan ana renk yeşildir (hue 152). Kaynaktaki 255 MyMath varsayılanı değildir. Sıfırlama MyMath'in yeşil CSS varsayılanlarına döner; kullanıcıya ait açıkça seçilmiş özel renkler ayrıca korunur.

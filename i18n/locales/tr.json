@@ -171,5 +171,8 @@
   "invalidAnswer": "Yalnız A, B, C, D, E veya boş cevap kullanılabilir.",
   "expiredLink": "Bağlantı geçersiz veya süresi dolmuş. Yeni bağlantı isteyin.",
   "topicCountMismatch": "Her soru için bir konu belirtin veya konuları boş bırakın.",
-  "invalidGroupOrder": "Tüm gruplar tam olarak bir kez belirtilmelidir."
+  "invalidGroupOrder": "Tüm gruplar tam olarak bir kez belirtilmelidir.",
+  "security": "Güvenlik",
+  "securityPending": "Güvenlik · onay bekliyor",
+  "pendingPassword": "Şifre onay bekliyor"
 }

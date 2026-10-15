@@ -27,9 +27,11 @@ Bu tercihler MyMath çalışmasında kullanıcı tarafından istendi ve YesSirPO
 
 ## i18n
 
-- Nuxt projelerinde mevcut `@nuxtjs/i18n` desenini izle. MyMath temel dilleri Türkçe, Azərbaycanca, English ve Русский; başka projede kullanıcının istediği diller esas.
+- Nuxt projelerinde mevcut `@nuxtjs/i18n` desenini izle. MyMath varsayılan dili Azərbaycan dili, diğer seçenekleri English ve Русский; başka projede kullanıcının istediği diller esas. Dil seçeneğinin kendi adı "Azərbaycan dili" yazılır; Türkçe kalıpları doğrudan aktarmak yerine doğal Azerbaycan dili kullanılır.
 - Butonlar, başlıklar, boş durumlar, hata metinleri, aria-label/title, placeholder ve tablo kontrollerini çevir. Dil tercihini sakla ve HTML `lang` değerini güncelle.
 - Kullanıcının grup/öğrenci adı, soru konusu, ID, şifre ve API enum anahtarlarını çevirme. Tarih ve doğal metin sıralamasında aktif locale'i kullan. Backend hatalarını güvenli, anlaşılır çeviri anahtarlarına eşle.
 - Sözlük anahtarları ve interpolasyon değişkenleri diller arasında eşleşsin. i18n eklemek için uygulama içeriğini veya iş akışını yeniden tasarlama.
 
 Kaynak noktaları: YesSirPOS `app/components/ui/DataTable.vue`, `app/components/layout/Sidebar.vue`, `app/pages/settings/appearance.vue`, `app/utils/brandTheme.ts`, `nuxt.config.ts`. Bunlar örnek desenlerdir; kaynak projeyi değiştirme yetkisi değildir.
+
+MyMath hesap güvenliği: şifre bağlantısı ve bekleyen şifre onayları öğrencinin kalkan ikonlu tek Təhlükəsizlik penceresinde toplanır; bekleyen talep ikon üzerinde noktayla belirtilir. Bu küçük akış için ayrı bir onay sayfası/menüsü açılmaz.
