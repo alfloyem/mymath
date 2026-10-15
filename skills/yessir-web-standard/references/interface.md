@@ -35,3 +35,19 @@ Bu tercihler MyMath çalışmasında kullanıcı tarafından istendi ve YesSirPO
 Kaynak noktaları: YesSirPOS `app/components/ui/DataTable.vue`, `app/components/layout/Sidebar.vue`, `app/pages/settings/appearance.vue`, `app/utils/brandTheme.ts`, `nuxt.config.ts`. Bunlar örnek desenlerdir; kaynak projeyi değiştirme yetkisi değildir.
 
 MyMath hesap güvenliği: şifre bağlantısı ve bekleyen şifre onayları öğrencinin kalkan ikonlu tek Təhlükəsizlik penceresinde toplanır; bekleyen talep ikon üzerinde noktayla belirtilir. Bu küçük akış için ayrı bir onay sayfası/menüsü açılmaz.
+
+## Küçük etkileşimlerde sadelik
+
+- Kişinin adı, ilgili pencerede belirgin bir başlık olsun; formun arasında küçük ve bağlamsız bir metin olarak durmasın.
+- Salt okunur bağlantının sağındaki tek kopyalama ikonu yeterlidir. Kısa `Keçid` etiketi kullan; ayrı büyük kopyalama butonu, işlem için gerekmeyen ID ve tekrar eden açıklamalar ekleme. Kopyalamada ikon kısa süre onay işaretine dönüşebilir.
+- Dahili kimlik değerini kullanıcıya taşımak yerine gerekli akışı otomatik bağla; MyMath öğrenci davetinden girişe geçerken hesabı seçili götürür. ID gizlemek yetkilendirme değildir; sunucu kontrolü korunur.
+- Tema ayarında renk sıfırlama ve tüm ayarları sıfırlama gibi belirsiz, tekrarlayan kontroller oluşturma. Düğmenin neyi sıfırladığı erişilebilir adından açık olsun.
+- Popover tetikleyiciye tekrar basmadan, dışarı tıklamayla ve Escape ile kapanmalı. Üst bileşen olay yayılımını durdurabiliyorsa dışarı tıklamayı capture aşamasında yakala. Dışarı tıklamada odağı zorla tetikleyiciye geri taşıma; Escape ile kapatmada geri döndürülebilir.
+- Dar sidebar'da gizli yazıların flex gap/padding'i ikonları kaydırmasın. Aktif menü ve tema modu göstergeleri konum değişimini yumuşakça animasyonlasın; reduced-motion korunmalı.
+
+## Veri ve doğrulama sınırları
+
+- Küçük bir bildirim için bütün panoyu periyodik çekme. Yalnız gerekli veriyi sorgula; gizli sekmede durdur, eşzamanlı aynı sorguları birleştir. Hızlı filtre değişiminde eski istek yeni görünümü ezmesin; iptal veya sıra kontrolü kullan.
+- İstemci tarafı sayfalama, sunucudan kademeli yükleme değildir. Gerçek veri yükleme davranışını açıkça belirt; büyük veri/yük testi yapılmadıysa ölçek garantisi verme. Liste cevabına kullanılmayan ağır JSON veya gizli alanlar koyma.
+- JSON boyutunu yalnız Content-Length'e veya parse sonrası uzunluğa göre sınırlama; akış sırasında da belleği sınırla. Yetki, origin/CSRF ve durum geçişlerini gerçek HTTP/veritabanı kontrolleriyle doğrula.
+- Güncel bağımlılık taramasındaki açık bulguları saklama. Başarılı test/derleme, sıfır güvenlik sorunu veya tarayıcıda görsel doğrulama iddiası değildir.
