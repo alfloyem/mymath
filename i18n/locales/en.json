@@ -174,5 +174,6 @@
   "invalidGroupOrder": "Each group must appear exactly once.",
   "security": "Security",
   "securityPending": "Security · approval pending",
-  "pendingPassword": "Password awaiting approval"
+  "pendingPassword": "Password awaiting approval",
+  "refreshData": "Refresh data"
 }

@@ -16,5 +16,5 @@ export default defineNuxtConfig({
   vite: { plugins: [tailwindcss()] },
   icon: { serverBundle: { collections: ['lucide'] } },
   typescript: { strict: true },
-  app: { head: { title: 'MyMath', htmlAttrs: { lang: 'tr' } } }
+  app: { head: { title: 'MyMath', htmlAttrs: { lang: 'az' } } }
 })

@@ -174,5 +174,6 @@
   "invalidGroupOrder": "Tüm gruplar tam olarak bir kez belirtilmelidir.",
   "security": "Güvenlik",
   "securityPending": "Güvenlik · onay bekliyor",
-  "pendingPassword": "Şifre onay bekliyor"
+  "pendingPassword": "Şifre onay bekliyor",
+  "refreshData": "Verileri yenile"
 }

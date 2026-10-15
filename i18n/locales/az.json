@@ -174,5 +174,6 @@
   "invalidGroupOrder": "Bütün qruplar yalnız bir dəfə göstərilməlidir.",
   "security": "Təhlükəsizlik",
   "securityPending": "Təhlükəsizlik · təsdiq gözləyir",
-  "pendingPassword": "Şifrə təsdiq gözləyir"
+  "pendingPassword": "Şifrə təsdiq gözləyir",
+  "refreshData": "Məlumatları yenilə"
 }

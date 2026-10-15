@@ -4,6 +4,7 @@ export default defineEventHandler(event => {
   setHeader(event, 'X-Content-Type-Options', 'nosniff')
   setHeader(event, 'Referrer-Policy', 'no-referrer')
   setHeader(event, 'X-Frame-Options', 'DENY')
+  if (event.path === '/' || event.path === '/hesabim' || event.path === '/giris' || event.path.startsWith('/davet/')) setHeader(event, 'Cache-Control', 'private, no-store')
   if (!event.path.startsWith('/api/')) return
   setHeader(event, 'Cache-Control', 'no-store')
   if (!['GET', 'HEAD', 'OPTIONS'].includes(event.method)) {

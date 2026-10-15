@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useErrorMessage } from '~/composables/useErrorMessage'
+import { createResourceCache } from '~/utils/resourceCache'
 const { t, locale } = useI18n()
 const errorMessage = useErrorMessage()
 type Group = { id: string; name: string; position: number; _count: { students: number; exams: number } }
@@ -9,12 +10,21 @@ type Result = { id: string; score: number; correct: number; wrong: number; blank
 const { data: me } = await useFetch<{ role: string; name: string; id?: string } | null>('/api/auth/me')
 if (!me.value) await navigateTo('/giris')
 else if (me.value.role !== 'ADMIN') await navigateTo('/hesabim')
-const { data: dashboard, refresh: refreshDashboard, error: initialError } = await useFetch<{ groups: Group[]; exams: Exam[]; requests: { id: string; createdAt: string; student: Student }[] }>('/api/dashboard')
-let pendingRefresh: Promise<void> | undefined
-function refreshRequests() {
-  if (pendingRefresh) return pendingRefresh
-  pendingRefresh = api('/api/password-requests').then(requests => { if (dashboard.value) dashboard.value.requests = requests }).finally(() => { pendingRefresh = undefined })
-  return pendingRefresh
+const { data: dashboard, refresh: fetchDashboard, error: initialError } = await useFetch<{ groups: Group[]; exams: Exam[]; requests: { id: string; createdAt: string; student: Student }[] }>('/api/dashboard', {key:'mymath-dashboard'})
+const cache = createResourceCache()
+if (dashboard.value) cache.prime('requests', dashboard.value.requests, 15000)
+onUnmounted(() => cache.clear())
+async function refreshDashboard() { await fetchDashboard(); if (dashboard.value) cache.prime('requests',dashboard.value.requests,15000) }
+async function refreshRequests(force = false) {
+  if (force) cache.invalidate('requests')
+  let requests
+  try { requests = await cache.read('requests', signal => api('/api/password-requests', { signal }), 15000) }
+  catch (error:any) { if (error.response?.status===401) { cache.clear(); clearNuxtData(); await navigateTo('/giris') }; throw error }
+  if (dashboard.value) dashboard.value.requests = requests
+}
+function invalidateStudents(...ids: string[]) {
+  cache.invalidate('students:all')
+  for (const id of ids) if (id) cache.invalidate(`students:${id}`)
 }
 const sidebarCollapsed = useCookie<boolean>('mymath-sidebar-collapsed', { default: () => false, maxAge: 31536000 })
 onMounted(() => {
@@ -23,7 +33,15 @@ onMounted(() => {
   window.addEventListener('focus', refresh)
   onUnmounted(() => { window.clearInterval(timer); window.removeEventListener('focus', refresh) })
 })
-const section = ref('groups'), activeGroup = ref(''), search = ref(''), selected = ref<string[]>([])
+const visited = reactive(new Set(['groups']))
+const section = ref('groups')
+type View = { groupId:string; search:string; selected:string[]; month:string }
+const views = reactive<Record<string,View>>({ groups:{groupId:'',search:'',selected:[],month:''}, students:{groupId:'',search:'',selected:[],month:''}, exams:{groupId:'',search:'',selected:[],month:''} })
+const activeGroup = computed({get:()=>views[section.value]!.groupId,set:(value:string)=>{views[section.value]!.groupId=value}})
+const search = computed({get:()=>views[section.value]!.search,set:(value:string)=>{views[section.value]!.search=value}})
+const selected = computed({get:()=>views[section.value]!.selected,set:(value:string[])=>{views[section.value]!.selected=value}})
+const monthFilter = computed({get:()=>views[section.value]!.month,set:(value:string)=>{views[section.value]!.month=value}})
+const originalStudentGroup = ref('')
 const students = ref<Student[]>([]), profile = ref<(Student & { results: Result[] }) | null>(null)
 const modal = ref(''), error = ref(''), notice = ref(''), busy = ref(false), loadingStudents = ref(false)
 const groupForm = reactive({ id: '', name: '' })
@@ -38,14 +56,14 @@ async function openSecurity(student: Student) { resetError(); securityStudent.va
 const copied = ref(false)
 let copyTimer: ReturnType<typeof setTimeout> | undefined
 onUnmounted(() => clearTimeout(copyTimer))
-const transferGroup = ref(''), inviteUrl = ref(''), monthFilter = ref('')
+const transferGroup = ref(''), inviteUrl = ref('')
 const confirmAction = ref<null | (() => Promise<void>)>(null), confirmText = ref('')
 const groups = computed(() => (dashboard.value?.groups || []) as Group[])
 const exams = computed(() => (dashboard.value?.exams || []) as unknown as Exam[])
-const filteredGroups = computed(() => groups.value.filter(g => g.name.toLocaleLowerCase(locale.value).includes(search.value.toLocaleLowerCase(locale.value))))
+const filteredGroups = computed(() => groups.value.filter(g => g.name.toLocaleLowerCase(locale.value).includes(views.groups!.search.toLocaleLowerCase(locale.value))))
 const currentGroup = computed(() => groups.value.find(g => g.id === activeGroup.value))
-const filteredStudents = computed(() => students.value.filter(s => `${s.firstName} ${s.lastName || ''} ${s.phone || ''}`.toLocaleLowerCase(locale.value).includes(search.value.toLocaleLowerCase(locale.value))))
-const filteredExams = computed(() => exams.value.filter(e => (!activeGroup.value || e.groupId === activeGroup.value) && (!monthFilter.value || e.month === monthFilter.value)))
+const filteredStudents = computed(() => students.value.filter(s => `${s.firstName} ${s.lastName || ''} ${s.phone || ''}`.toLocaleLowerCase(locale.value).includes(views.students!.search.toLocaleLowerCase(locale.value))))
+const filteredExams = computed(() => exams.value.filter(e => (!views.exams!.groupId || e.groupId === views.exams!.groupId) && (!views.exams!.month || e.month === views.exams!.month)))
 const profileResults = computed(() => (profile.value?.results || []).filter(r => !monthFilter.value || r.exam.month === monthFilter.value))
 const profileAverage = computed(() => profileResults.value.length ? Math.round(profileResults.value.reduce((a, r) => a + r.score, 0) / profileResults.value.length) : 0)
 const monthlyResults = computed(() => {
@@ -63,41 +81,56 @@ async function run(action: () => Promise<void>) {
   try { await action() } catch (e: any) { error.value = errorMessage(e.data?.statusMessage) } finally { busy.value = false }
 }
 let studentLoad: AbortController | undefined
+let studentResourceKey = ''
 onUnmounted(() => studentLoad?.abort())
 async function loadStudents() {
+  const groupId=views.students!.groupId
+  const key=`students:${groupId || 'all'}`
+  if (loadingStudents.value && studentResourceKey !== key) cache.invalidate(studentResourceKey)
+  studentResourceKey=key
   studentLoad?.abort()
   const controller = new AbortController()
   studentLoad = controller
   loadingStudents.value = true
-  try { students.value = await api('/api/students', { query: activeGroup.value ? { groupId: activeGroup.value } : {}, signal: controller.signal }) as Student[] }
+  try { const rows = await cache.read(key, signal => api('/api/students', { query: groupId ? { groupId } : {}, signal }) as Promise<Student[]>); if (!controller.signal.aborted) students.value = rows }
   catch (error) { if (!controller.signal.aborted) throw error }
   finally { if (studentLoad === controller) loadingStudents.value = false }
 }
-async function navigate(to: string, groupId = '') { resetError(); modal.value = ''; section.value = to; activeGroup.value = groupId; search.value = ''; selected.value = []; monthFilter.value = ''; if (to === 'students') { try { await loadStudents() } catch (e:any) { error.value = errorMessage(e.data?.statusMessage) } } }
+async function navigate(to: string, groupId?: string) {
+  if (!views[to]) return
+  resetError(); modal.value = ''; visited.add(to); section.value = to
+  if (groupId !== undefined && views[to]!.groupId !== groupId) { views[to]!.groupId=groupId; views[to]!.search=''; views[to]!.selected=[] }
+  if (to === 'students') { try { await loadStudents() } catch (e:any) { error.value = errorMessage(e.data?.statusMessage) } }
+}
+async function refreshCurrent() { await run(async () => {
+  if (section.value==='students') { invalidateStudents(views.students!.groupId); await loadStudents(); await refreshRequests(true) }
+  else await refreshDashboard()
+}) }
+
 function openGroup(g?: Group) { resetError(); Object.assign(groupForm, { id: g?.id || '', name: g?.name || '' }); modal.value = 'group' }
-async function saveGroup() { await run(async () => { await api(`/api/groups${groupForm.id ? '/' + groupForm.id : ''}`, { method: groupForm.id ? 'PUT' : 'POST', body: { name: groupForm.name } }); await refreshDashboard(); modal.value = '' }) }
+async function saveGroup() { await run(async () => { await api(`/api/groups${groupForm.id ? '/' + groupForm.id : ''}`, { method: groupForm.id ? 'PUT' : 'POST', body: { name: groupForm.name } }); cache.invalidate('students:'); cache.invalidate('profile:'); await refreshDashboard(); modal.value = '' }) }
 async function moveGroup(g: Group, direction: number) { await run(async () => { const ids = groups.value.map(g => g.id); const i = ids.indexOf(g.id); const j = i + direction; if (j < 0 || j >= ids.length) return; [ids[i], ids[j]] = [ids[j]!, ids[i]!]; await api('/api/groups/reorder', { method: 'PUT', body: { ids } }); await refreshDashboard() }) }
 function askDelete(kind: string, id: string, name: string) {
   resetError(); confirmText.value = `${t('deletePrompt',{name})} ${kind === 'groups' ? t('deleteGroupHelp') : kind === 'students' ? t('deleteStudentHelp') : t('deleteExamHelp')}`
-  confirmAction.value = async () => { await api(`/api/${kind}/${id}`, { method: 'DELETE' }); await refreshDashboard(); if (section.value === 'students') await loadStudents(); if (kind === 'students') profile.value = null; modal.value = '' }
+  confirmAction.value = async () => { await api(`/api/${kind}/${id}`, { method: 'DELETE' }); cache.invalidate('students:'); cache.invalidate('profile:'); await refreshDashboard(); if (section.value === 'students') await loadStudents(); if (kind === 'students') profile.value = null; modal.value = '' }
   modal.value = 'confirm'
 }
-function openStudent(student?: Student) { resetError(); Object.assign(studentForm, { id: student?.id || '', firstName: student?.firstName || '', lastName: student?.lastName || '', birthDate: student?.birthDate?.slice(0, 10) || '', phone: student?.phone || '', password: '', groupId: student?.groupId || activeGroup.value || groups.value[0]?.id || '' }); modal.value = 'student' }
-async function saveStudent() { await run(async () => { const { id, password, ...rest } = studentForm; await api(`/api/students${id ? '/' + id : ''}`, { method: id ? 'PUT' : 'POST', body: { ...rest, birthDate: rest.birthDate || null, ...(password ? { password } : {}) } }); studentForm.password = ''; await Promise.all([loadStudents(), refreshDashboard()]); modal.value = ''; if (profile.value?.id === id) await loadProfile(id) }) }
-async function loadProfile(id: string) { profile.value = await api(`/api/students/${id}`) as unknown as Student & { results: Result[] } }
+function openStudent(student?: Student) { resetError(); originalStudentGroup.value=student?.groupId || '';  Object.assign(studentForm, { id: student?.id || '', firstName: student?.firstName || '', lastName: student?.lastName || '', birthDate: student?.birthDate?.slice(0, 10) || '', phone: student?.phone || '', password: '', groupId: student?.groupId || activeGroup.value || groups.value[0]?.id || '' }); modal.value = 'student' }
+async function saveStudent() { await run(async () => { const { id, password, ...rest } = studentForm; await api(`/api/students${id ? '/' + id : ''}`, { method: id ? 'PUT' : 'POST', body: { ...rest, birthDate: rest.birthDate || null, ...(password ? { password } : {}) } }); studentForm.password = ''; invalidateStudents(originalStudentGroup.value,rest.groupId); if(id) cache.invalidate(`profile:${id}`); await Promise.all([loadStudents(), refreshDashboard()]); modal.value = ''; if (profile.value?.id === id) await loadProfile(id) }) }
+async function loadProfile(id: string) { profile.value = await cache.read(`profile:${id}`,signal=>api(`/api/students/${id}`,{signal}) as Promise<Student & {results:Result[]}>) }
 async function openProfile(s: Student) { await run(async () => { await loadProfile(s.id); monthFilter.value = ''; modal.value = 'profile' }) }
 function openTransfer() { resetError(); transferGroup.value = groups.value.find(g => g.id !== activeGroup.value)?.id || ''; modal.value = 'transfer' }
-async function transfer() { await run(async () => { await api('/api/students/transfer', { method: 'POST', body: { ids: selected.value, groupId: transferGroup.value } }); selected.value = []; await Promise.all([loadStudents(), refreshDashboard()]); modal.value = '' }) }
+async function transfer() { await run(async () => { await api('/api/students/transfer', { method: 'POST', body: { ids: selected.value, groupId: transferGroup.value } }); cache.invalidate('students:'); for (const id of selected.value) cache.invalidate(`profile:${id}`); selected.value = []; await Promise.all([loadStudents(), refreshDashboard()]); modal.value = '' }) }
 async function createInvite(s: Student) { await run(async () => { const r = await api(`/api/students/${s.id}/invite`, { method: 'POST' }); inviteUrl.value = r.url; modal.value = 'security' }) }
 async function copyInvite() {
   try { await navigator.clipboard.writeText(inviteUrl.value); copied.value = true; clearTimeout(copyTimer); copyTimer = setTimeout(() => { copied.value = false }, 1800) }
   catch { error.value = t('copyManually') }
 }
-async function review(id: string, approve: boolean) { await run(async () => { await api(`/api/password-requests/${id}`, { method: 'POST', body: { approve } }); await refreshRequests(); notice.value = approve ? t('approvedNotice') : t('rejectedNotice') }) }
+async function review(id: string, approve: boolean) { await run(async () => { await api(`/api/password-requests/${id}`, { method: 'POST', body: { approve } }); await refreshRequests(true); notice.value = approve ? t('approvedNotice') : t('rejectedNotice') }) }
 function openExam() { resetError(); Object.assign(examForm, { title: '', month: new Date().toISOString().slice(0, 7), groupId: activeGroup.value || groups.value[0]?.id || '', key: '', topics: '' }); modal.value = 'exam' }
 function parseAnswers(value: string): (string | null)[] { return value.toUpperCase().trim().split(/[\s,;]+/).filter(Boolean).map(a => a === '-' || a === '_' ? null : a) }
-async function saveExam() { await run(async () => { await api('/api/exams', { method: 'POST', body: { title: examForm.title, month: examForm.month, groupId: examForm.groupId, answerKey: parseAnswers(examForm.key), topics: examForm.topics.trim() ? examForm.topics.split(',').map(t => t.trim()) : [] } }); await refreshDashboard(); modal.value = ''; section.value = 'exams' }) }
-async function toggleExam(e: Exam) { await run(async () => { await api(`/api/exams/${e.id}`, { method: 'PUT', body: { status: e.status === 'OPEN' ? 'CLOSED' : 'OPEN' } }); await refreshDashboard() }) }
+async function saveExam() { await run(async () => { await api('/api/exams', { method: 'POST', body: { title: examForm.title, month: examForm.month, groupId: examForm.groupId, answerKey: parseAnswers(examForm.key), topics: examForm.topics.trim() ? examForm.topics.split(',').map(t => t.trim()) : [] } }); await refreshDashboard(); modal.value = ''; visited.add('exams'); views.exams!.groupId=examForm.groupId; views.exams!.month=examForm.month; section.value = 'exams' }) }
+async function toggleExam(e: Exam) { await run(async () => { await api(`/api/exams/${e.id}`, { method: 'PUT', body: { status: e.status === 'OPEN' ? 'CLOSED' : 'OPEN' } }); cache.invalidate('profile:'); await refreshDashboard() }) }
 function openResult(r?: Result) { resetError(); resultForm.examId = r?.exam.id || eligibleExams.value[0]?.id || ''; resultForm.answers = r?.answers.map(a => a || '-').join(' ') || ''; resultForm.originalName = ''; modal.value = 'result' }
 function changedExam() { const previous = profile.value?.results.find(r => r.exam.id === resultForm.examId); resultForm.answers = previous?.answers.map(a => a || '-').join(' ') || ''; resultForm.originalName = '' }
 async function uploadAnswers(event: Event) {
@@ -112,8 +145,8 @@ async function uploadAnswers(event: Event) {
     resultForm.originalName = file.name
   } catch (e: any) { error.value = e.message } finally { input.value = '' }
 }
-async function saveResult() { await run(async () => { if (!profile.value) return; await api('/api/results', { method: 'POST', body: { examId: resultForm.examId, studentId: profile.value.id, answers: parseAnswers(resultForm.answers), originalName: resultForm.originalName || undefined } }); await loadProfile(profile.value.id); await refreshDashboard(); modal.value = 'profile'; notice.value = t('resultSaved') }) }
-async function logout() { await api('/api/auth/logout', { method: 'POST' }); await navigateTo('/giris') }
+async function saveResult() { await run(async () => { if (!profile.value) return; await api('/api/results', { method: 'POST', body: { examId: resultForm.examId, studentId: profile.value.id, answers: parseAnswers(resultForm.answers), originalName: resultForm.originalName || undefined } }); cache.invalidate(`profile:${profile.value.id}`); invalidateStudents(profile.value.groupId); await loadProfile(profile.value.id); const row=students.value.find(s=>s.id===profile.value?.id); if(row?._count) row._count.results=profile.value.results.length; await refreshDashboard(); modal.value = 'profile'; notice.value = t('resultSaved') }) }
+async function logout() { await run(async()=>{ await api('/api/auth/logout', { method: 'POST' }); cache.clear(); clearNuxtData(); await navigateTo('/giris') }) }
 function selectAll(event: Event) { selected.value = (event.target as HTMLInputElement).checked ? filteredStudents.value.map(s => s.id) : [] }
 </script>
 
@@ -122,37 +155,37 @@ function selectAll(event: Event) { selected.value = (event.target as HTMLInputEl
     <AppSidebar v-model:collapsed="sidebarCollapsed" :section="section" @navigate="navigate" @logout="logout" />
     <main class="content min-w-0">
       <header class="page-head">
-        <h1>{{ title }}</h1>
+        <div class="flex items-center gap-2"><h1>{{ title }}</h1><button class="icon-btn" :disabled="busy" :aria-label="t('refreshData')" :title="t('refreshData')" @click="refreshCurrent"><Icon name="lucide:refresh-cw" size="16" /></button></div>
         <button v-if="section === 'groups'" class="btn primary" @click="openGroup()"><Icon name="lucide:plus" />{{ t('addGroup') }}</button>
         <button v-if="section === 'students'" class="btn primary" :disabled="!groups.length" @click="openStudent()"><Icon name="lucide:plus" />{{ t('addStudent') }}</button>
         <button v-if="section === 'exams'" class="btn primary" :disabled="!groups.length" @click="openExam"><Icon name="lucide:plus" />{{ t('startExam') }}</button>
       </header>
       <p v-if="(error || initialError) && !modal" class="error mb-4" role="alert">{{ error || errorMessage(initialError?.statusMessage,'dataUnavailable') }}</p>
       <p v-if="notice && !modal" class="notice mb-4" role="status">{{ notice }}</p>
-      <template v-if="section === 'groups'">
-        <div v-if="groups.length" class="toolbar"><input v-model="search" :aria-label="t('searchGroup')" :placeholder="t('searchGroup')"><span class="text-xs muted">{{ groups.length }} {{ t('group') }}</span></div>
-        <AppTable :rows="filteredGroups" :columns="[{key:'name',label:'group'}, {key:'students',label:'student',value:g=>g._count.students}, {key:'exams',label:'exam',value:g=>g._count.exams}, {key:'actions'}]" :empty="search ? t('groupNotFound') : t('noGroups')">
+      <section v-if="visited.has('groups')" v-show="section === 'groups'" class="view-pane">
+        <div v-if="groups.length" class="toolbar"><input v-model="views.groups!.search" :aria-label="t('searchGroup')" :placeholder="t('searchGroup')"><span class="text-xs muted">{{ groups.length }} {{ t('group') }}</span></div>
+        <AppTable :rows="filteredGroups" :columns="[{key:'name',label:'group'}, {key:'students',label:'student',value:g=>g._count.students}, {key:'exams',label:'exam',value:g=>g._count.exams}, {key:'actions'}]" :empty="views.groups!.search ? t('groupNotFound') : t('noGroups')">
           <template #name="{row:g}"><button class="row-link" @click="navigate('students',g.id)">{{ g.name }}</button></template>
           <template #actions="{row:g}"><div class="row-actions"><button class="icon-btn" :disabled="busy || groups[0]?.id===g.id" :aria-label="t('moveUp')" @click="moveGroup(g,-1)"><Icon name="lucide:arrow-up" /></button><button class="icon-btn" :disabled="busy || groups.at(-1)?.id===g.id" :aria-label="t('moveDown')" @click="moveGroup(g,1)"><Icon name="lucide:arrow-down" /></button><button class="icon-btn" :aria-label="t('editGroup')" @click="openGroup(g)"><Icon name="lucide:pencil" /></button><button class="icon-btn danger" :aria-label="t('deleteGroup')" @click="askDelete('groups',g.id,g.name)"><Icon name="lucide:trash-2" /></button></div></template>
         </AppTable>
-      </template>
-      <template v-if="section === 'students'">
-        <div class="toolbar"><select v-model="activeGroup" aria-label="Grup filtresi" @change="selected=[];loadStudents().catch(e => error=errorMessage(e.data?.statusMessage))"><option value="">{{ t('allGroups') }}</option><option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option></select><input v-model="search" :aria-label="t('searchStudent')" :placeholder="t('searchStudent')"><button v-if="selected.length" class="btn ml-auto" @click="openTransfer"><Icon name="lucide:arrow-right-left" />{{ t('transfer') }} ({{ selected.length }})</button></div>
-        <AppTable :rows="filteredStudents" :loading="loadingStudents" :columns="[{key:'select'}, {key:'name',label:'student',sortable:true,value:s=>s.firstName+' '+(s.lastName||'')}, {key:'group',label:'group',sortable:true,value:s=>s.group?.name}, {key:'phone',label:'phone'}, {key:'exams',label:'exam',sortable:true,value:s=>s._count?.results||0}, {key:'actions'}]" :empty="search ? t('studentNotFound') : t('noStudents')">
+      </section>
+      <section v-if="visited.has('students')" v-show="section === 'students'" class="view-pane">
+        <div class="toolbar"><select v-model="views.students!.groupId" aria-label="Grup filtresi" @change="selected=[];loadStudents().catch(e => error=errorMessage(e.data?.statusMessage))"><option value="">{{ t('allGroups') }}</option><option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option></select><input v-model="views.students!.search" :aria-label="t('searchStudent')" :placeholder="t('searchStudent')"><button v-if="selected.length" class="btn ml-auto" @click="openTransfer"><Icon name="lucide:arrow-right-left" />{{ t('transfer') }} ({{ selected.length }})</button></div>
+        <AppTable :rows="filteredStudents" :loading="loadingStudents" :columns="[{key:'select'}, {key:'name',label:'student',sortable:true,value:s=>s.firstName+' '+(s.lastName||'')}, {key:'group',label:'group',sortable:true,value:s=>s.group?.name}, {key:'phone',label:'phone'}, {key:'exams',label:'exam',sortable:true,value:s=>s._count?.results||0}, {key:'actions'}]" :empty="views.students!.search ? t('studentNotFound') : t('noStudents')">
           <template #header-select><input type="checkbox" :aria-label="t('selectAll')" :checked="filteredStudents.length>0 && filteredStudents.every(s=>selected.includes(s.id))" @change="selectAll"></template>
           <template #select="{row:s}"><input v-model="selected" type="checkbox" :value="s.id" :aria-label="t('selectStudent',{name:s.firstName})"></template>
           <template #name="{row:s}"><button class="row-link" @click="openProfile(s)">{{ s.firstName }} {{ s.lastName }}</button></template>
           <template #actions="{row:s}"><div class="row-actions"><button class="icon-btn" :aria-label="t('editStudent')" @click="openStudent(s)"><Icon name="lucide:pencil" /></button><button class="icon-btn security-button" :aria-label="hasPending(s.id) ? t('securityPending') : t('security')" :title="hasPending(s.id) ? t('securityPending') : t('security')" @click="openSecurity(s)"><Icon name="lucide:shield-check" /><span v-if="hasPending(s.id)" class="pending-dot" /></button><button class="icon-btn danger" :aria-label="t('deleteStudent')" @click="askDelete('students',s.id,s.firstName)"><Icon name="lucide:trash-2" /></button></div></template>
         </AppTable>
-      </template>
-      <template v-if="section === 'exams'">
-        <div class="toolbar"><select v-model="activeGroup" aria-label="Grup filtresi"><option value="">{{ t('allGroups') }}</option><option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option></select><input v-model="monthFilter" type="month" :aria-label="t('examMonth')"><button v-if="monthFilter" class="icon-btn" :aria-label="t('clearMonth')" @click="monthFilter=''"><Icon name="lucide:x" /></button></div>
+      </section>
+      <section v-if="visited.has('exams')" v-show="section === 'exams'" class="view-pane">
+        <div class="toolbar"><select v-model="views.exams!.groupId" aria-label="Grup filtresi"><option value="">{{ t('allGroups') }}</option><option v-for="g in groups" :key="g.id" :value="g.id">{{ g.name }}</option></select><input v-model="views.exams!.month" type="month" :aria-label="t('examMonth')"><button v-if="views.exams!.month" class="icon-btn" :aria-label="t('clearMonth')" @click="views.exams!.month=''"><Icon name="lucide:x" /></button></div>
         <AppTable :rows="filteredExams" :columns="[{key:'title',label:'exam',sortable:true},{key:'group',label:'group',sortable:true,value:e=>e.group.name},{key:'month',label:'month',sortable:true},{key:'results',label:'result',sortable:true,value:e=>e._count.results},{key:'status',label:'status'},{key:'actions'}]" :empty="t('examNotFound')">
           <template #title="{row:e}"><span class="font-medium">{{ e.title }}</span><small class="block mt-1">{{ t('questionCount',{count:e.questionCount}) }}</small></template>
           <template #status="{row:e}"><span class="pill" :class="{'pill-neutral':e.status==='CLOSED'}">{{ e.status==='OPEN'?t('open'):t('closed') }}</span></template>
           <template #actions="{row:e}"><div class="row-actions"><button class="btn text-xs" :disabled="busy" @click="toggleExam(e)">{{ e.status==='OPEN'?t('close'):t('reopen') }}</button><button class="icon-btn danger" :aria-label="t('deleteExam')" @click="askDelete('exams',e.id,e.title)"><Icon name="lucide:trash-2" /></button></div></template>
         </AppTable>
-      </template>
+      </section>
 
     </main>
   <Transition name="modal"><div v-if="modal" class="overlay" @click.self="!busy && (modal='')" @keydown.esc="!busy && (modal='')"><section role="dialog" aria-modal="true" aria-labelledby="modal-title" class="modal" :class="modal==='profile'?'wide':''"><div class="modal-head"><h2 id="modal-title" :class="{'person-name':modal==='security'}">{{ ({group:groupForm.id?t('editGroup'):t('newGroup'),student:studentForm.id?t('editStudent'):t('newStudent'),transfer:t('transferTitle'),security:securityStudent ? `${securityStudent.firstName} ${securityStudent.lastName || ''}`.trim() : t('security'),exam:t('newGroupExam'),result:t('uploadExamResult'),profile:t('profile'),confirm:t('deleteConfirmation')} as Record<string,string>)[modal] }}</h2><button class="icon-btn" :disabled="busy" :aria-label="t('closeWindow')" @click="modal='' ; studentForm.password='' "><Icon name="lucide:x" size="20" /></button></div>
