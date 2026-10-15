@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client"
+  output = "../server/generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+}
+model Admin {
+  id String @id @default(cuid())
+  username String @unique
+  passwordHash String
+  sessions Session[]
+}
+model Group {
+  id String @id @default(cuid())
+  name String
+  position Int @default(0)
+  createdAt DateTime @default(now())
+  students Student[]
+  exams Exam[]
+}
+model Student {
+  id String @id @default(cuid())
+  firstName String
+  lastName String?
+  birthDate DateTime? @db.Date
+  phone String?
+  passwordHash String?
+  groupId String
+  group Group @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invitations Invitation[]
+  passwordRequests PasswordRequest[]
+  sessions Session[]
+  results Result[]
+}
+model Session {
+  id String @id @default(cuid())
+  tokenHash String @unique
+  adminId String?
+  admin Admin? @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  studentId String?
+  student Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+model Invitation {
+  id String @id @default(cuid())
+  tokenHash String @unique
+  studentId String
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+}
+model PasswordRequest {
+  id String @id @default(cuid())
+  studentId String
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  passwordHash String
+  status String @default("PENDING")
+  createdAt DateTime @default(now())
+  reviewedAt DateTime?
+  @@index([status])
+}
+model Exam {
+  id String @id @default(cuid())
+  title String
+  month String
+  groupId String
+  group Group @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  answerKey Json
+  topics Json
+  status String @default("OPEN")
+  createdAt DateTime @default(now())
+  results Result[]
+  @@index([groupId, month])
+}
+model Result {
+  id String @id @default(cuid())
+  examId String
+  exam Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  studentId String
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers Json
+  correct Int
+  wrong Int
+  blank Int
+  score Float
+  topicAnalysis Json
+  originalName String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([examId, studentId])
+}
+model AuditLog {
+  id String @id @default(cuid())
+  actorId String
+  action String
+  targetId String
+  createdAt DateTime @default(now())
+}
