@@ -21,10 +21,10 @@ async function submit() {
     <template v-else-if="invite">
       <template v-if="done"><div class="notice mb-5">{{ t('passwordSent') }}</div><NuxtLink :to="{path:'/giris',query:{student:invite.studentId}}" class="btn">{{ t('login') }}</NuxtLink></template>
       <form v-else @submit.prevent="submit">
-        
+
         <div class="field"><label for="new-password">{{ t('newPassword') }}</label><input id="new-password" v-model="password" type="password" minlength="8" maxlength="72" autocomplete="new-password" required></div>
         <div class="field"><label for="confirm">{{ t('repeatPassword') }}</label><input id="confirm" v-model="confirmPassword" type="password" minlength="8" maxlength="72" autocomplete="new-password" required></div>
-        
+
         <p v-if="error" class="error mb-4" role="alert">{{ error }}</p><button class="btn primary w-full" :disabled="busy">{{ t('submitApproval') }}</button>
       </form>
     </template>
