@@ -4,7 +4,7 @@ Grup ve öğrenci yönetimi, yönetici onaylı şifre akışı ve aylık matemat
 
 ## Teknoloji
 
-Node.js 24 LTS, Nuxt 4.6.1, Vue 3.5.43, TypeScript 6, Tailwind CSS 4.3.3, Iconify/Lucide, PostgreSQL 18, Prisma 7.10.1 ve Zod. Gerçek kurulum sürümleri `package-lock.json` ile sabitlenir. ORM 8 ön sürümüne geçilmedi.
+Node.js 24 LTS, Nuxt 4.6.1, Vue 3.5.43, TypeScript 6, Tailwind CSS 4.3.3, Iconify/Lucide, PostgreSQL 18, Prisma 7.10.1 ve Zod. Gerçek kurulum sürümleri `pnpm-lock.yaml` ile sabitlenir. ORM 8 ön sürümüne geçilmedi.
 
 ## Bu bilgisayarda
 
@@ -14,8 +14,8 @@ Node.js 24 LTS, Nuxt 4.6.1, Vue 3.5.43, TypeScript 6, Tailwind CSS 4.3.3, Iconif
 - YesSirPOS veritabanına bağlantı kurulmaz.
 
 ```powershell
-npm run local:db:start
-npm run dev
+pnpm local:db:start
+pnpm dev
 ```
 
 Node/Nuxt dosya izleyicisi sürücü kökündeki SUBST eşlemesinde hata verebildiğinden komutları projenin gerçek klasöründe çalıştırın. Yerel PostgreSQL bir Windows servisi olarak kurulmadı; bilgisayar yeniden açıldığında yukarıdaki komutla başlatılır.
@@ -24,9 +24,9 @@ Node/Nuxt dosya izleyicisi sürücü kökündeki SUBST eşlemesinde hata verebil
 
 1. Node 24.11+ (24 serisi) ve PostgreSQL 18 kurun. Alternatif olarak Docker kullanın.
 2. `.env.example` dosyasını `.env` olarak kopyalayın. `DATABASE_URL`, `APP_URL`, `ADMIN_USERNAME`, `ADMIN_PASSWORD` alanlarını doldurun. Admin şifresi en az 12 karakter olmalıdır.
-3. Docker kullanıyorsanız `.env` içine `POSTGRES_PASSWORD` ekleyin; URL'deki parola ile eşleştirin. `docker compose up -d database` çalıştırın. Mevcut yerel küme aynı porttaysa önce `npm run local:db:stop` çalıştırın. Docker ve yerel küme birbirine alternatif.
-4. `npm ci`, `npm run db:deploy`, `npm run db:seed` çalıştırın.
-5. `npm run dev` ile açın.
+3. Docker kullanıyorsanız `.env` içine `POSTGRES_PASSWORD` ekleyin; URL'deki parola ile eşleştirin. `docker compose up -d database` çalıştırın. Mevcut yerel küme aynı porttaysa önce `pnpm local:db:stop` çalıştırın. Docker ve yerel küme birbirine alternatif.
+4. `pnpm install --frozen-lockfile`, `pnpm db:deploy`, `pnpm db:seed` çalıştırın.
+5. `pnpm dev` ile açın.
 
 Seed mevcut adminin şifresini değiştirmez ve ikinci admin oluşturmaz. Tek admin kuralı veritabanında da korunur. Kimlik bilgileri, veritabanı dosyaları, derleme çıktıları ve üretilen Prisma istemcisi Git'e girmez.
 
@@ -55,18 +55,18 @@ Başarı = doğru / toplam soru × 100. Yanlışlar doğruları götürmez. Bu i
 ## Kontroller
 
 ```powershell
-npm test
-npm run typecheck
-npm run test:integration
-npm run build
+pnpm test
+pnpm typecheck
+pnpm test:integration
+pnpm build
 ```
 
 Entegrasyon testi çalışan sunucu + `.env` admin bilgilerini kullanır, kendi TEST-* kayıtlarını oluşturup temizler. `TEST_BASE_URL` ile test hedefi seçilebilir. Test ortamında çalıştırın; giriş deneme sınırları ardışık çok sayıda çalıştırmayı geçici engelleyebilir. Derleme gerçek üretim hizmetine dağıtım anlamına gelmez.
 
 ## Üretim
 
-`APP_URL` gerçek HTTPS adresi olmalı; `NODE_ENV=production`, `DATABASE_URL`, `PORT`, `HOST` işletim ortamından verilmelidir. `npm run db:deploy` ve tek sefer `npm run db:seed` sonrası `npm run build`, `npm start` kullanılır. `.env` geliştirme/CLI içindir; üretim Node sunucusu ortam değişkenlerini servis yöneticisinden almalıdır. HTTPS reverse proxy, PostgreSQL yedeği ve kısıtlı uygulama DB rolü kurulmalıdır.
+`APP_URL` gerçek HTTPS adresi olmalı; `NODE_ENV=production`, `DATABASE_URL`, `PORT`, `HOST` işletim ortamından verilmelidir. `pnpm db:deploy` ve tek sefer `pnpm db:seed` sonrası `pnpm build`, `pnpm start` kullanılır. `.env` geliştirme/CLI içindir; üretim Node sunucusu ortam değişkenlerini servis yöneticisinden almalıdır. HTTPS reverse proxy, PostgreSQL yedeği ve kısıtlı uygulama DB rolü kurulmalıdır.
 
 Oturumlar HttpOnly/SameSite=Lax çerezlerinde, SHA-256 token özetiyle DB'de tutulur; üretimde Secure çerezi kullanılır. Şifre onayları, transfer, sonuç kaydı ve silmeler denetim kaydı bırakır. Şifre taleplerinde öğrenci satırı kilidi ve tek bekleyen talep indeksi eşzamanlı işlemleri korur. Bu ilk sürümde giriş sınırlandırma tek süreç belleğindedir; çok sunuculu dağıtımda paylaşımlı Redis benzeri depoya geçirilmelidir. Denetim günlüğü/sona eren oturumlar için saklama ve temizleme süresi üretim ihtiyacına göre belirlenmelidir.
 
-16 Ekim 2026 bağımlılık taramasında `braces@3.0.3` ve `node-forge@1.4.0` için henüz yayımlanmış düzeltme bulunmadı. `npm audit` bağımlılık zinciriyle birlikte 11 yüksek önem kaydı bildiriyor. Prisma'nın düzeltme sürümü 7.10.1 uygulandı. Kalanlar Nuxt/Nitro'nun dosya eşleme ve geliştirme HTTPS yardımcılarına bağlıdır; bu durum güvenlik açısından üretime hazır olduğumuz iddiası değildir. Üretim öncesi güncel tarama ve üst paket düzeltmeleri tekrar kontrol edilmelidir. Kaynaklar: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm ve https://github.com/advisories/GHSA-86w9-cpqp-85rv.
+16 Ekim 2026 bağımlılık taramasında `braces@3.0.3` ve `node-forge@1.4.0` için henüz yayımlanmış düzeltme bulunmadı. İlk `npm audit` taraması bağımlılık zinciriyle birlikte 11 yüksek önem kaydı bildirdi. Prisma'nın düzeltme sürümü 7.10.1 uygulandı. Kalanlar Nuxt/Nitro'nun dosya eşleme ve geliştirme HTTPS yardımcılarına bağlıdır; bu durum güvenlik açısından üretime hazır olduğumuz iddiası değildir. Üretim öncesi güncel tarama ve üst paket düzeltmeleri tekrar kontrol edilmelidir. Kaynaklar: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm ve https://github.com/advisories/GHSA-86w9-cpqp-85rv.

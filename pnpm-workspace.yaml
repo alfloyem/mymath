@@ -1,0 +1,26 @@
+allowBuilds:
+  '@parcel/watcher': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+minimumReleaseAgeExclude:
+  - '@nuxt/cli@4.0.1'
+  - '@nuxt/kit@4.6.1'
+  - '@nuxt/nitro-server@4.6.1'
+  - '@nuxt/schema@4.6.1'
+  - '@nuxt/vite-builder@4.6.1'
+  - '@nuxt/vite-server@4.6.1'
+  - dotenv@18.0.7
+  - nuxt@4.6.1
+  - '@vue/language-core@3.3.13'
+  - vue-tsc@3.3.13
+  - '@prisma/adapter-pg@7.10.1'
+  - '@prisma/client-runtime-utils@7.10.1'
+  - '@prisma/client@7.10.1'
+  - '@prisma/config@7.10.1'
+  - '@prisma/debug@7.10.1'
+  - '@prisma/driver-adapter-utils@7.10.1'
+  - '@prisma/engines@7.10.1'
+  - '@prisma/fetch-engine@7.10.1'
+  - '@prisma/get-platform@7.10.1'
+  - prisma@7.10.1
