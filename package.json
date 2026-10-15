@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nuxt dev --host localhost",
     "build": "prisma generate && nuxt build",
-    "start": "node .output/server/index.mjs",
+    "start": "node scripts/start.mjs",
     "postinstall": "nuxt prepare && prisma generate",
     "typecheck": "node node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p .nuxt/tsconfig.app.json && node node_modules/typescript/bin/tsc --noEmit -p .nuxt/tsconfig.server.json",
     "test": "tsx --test tests/*.test.ts",
