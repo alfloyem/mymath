@@ -271,3 +271,8 @@ input.hue-slider { appearance:none; height:8px; background:linear-gradient(to ri
 @media(hover:hover) { .nav button:hover .iconify { transform:translateY(-1px); } .nav button .iconify { transition:transform 220ms var(--ease-ui); } }
 @media(max-width:1023px) { .sidebar-collapsed .nav button { justify-content:flex-start; gap:12px; padding:11px 14px; } .sidebar-collapsed .nav button .sidebar-label { display:inline; } }
 @media(prefers-reduced-motion:reduce) { *, *::before, *::after { transition:none!important; animation:none!important; } }
+/* Pressed feedback must win over the desktop hover transform. */
+.btn:active:not(:disabled) { transform:translateY(0) scale(.96); }
+.icon-btn:active:not(:disabled), .brand-toggle:active { transform:scale(.91); }
+.nav button:active { transform:scale(.97); }
+.copy-field .icon-btn:active:not(:disabled) { transform:translateY(-50%) scale(.92); }
