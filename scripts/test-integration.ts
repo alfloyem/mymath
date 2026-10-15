@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { randomBytes } from 'node:crypto'
 import { db } from '../server/utils/db'
 import { digest } from '../server/utils/security'
-const base = process.env.TEST_BASE_URL || 'http://localhost:3100'
+const base = process.env.TEST_BASE_URL || 'http://localhost:3000'
 const marker = `TEST-${randomBytes(6).toString('hex')}`
 let cookie = '', checks = 0
 const groupIds: string[] = [], studentIds: string[] = [], examIds: string[] = []

@@ -8,7 +8,7 @@ Node.js 24 LTS, Nuxt 4.6.1, Vue 3.5.43, TypeScript 6, Tailwind CSS 4.3.3, Iconif
 
 ## Bu bilgisayarda
 
-- Uygulama: http://localhost:3100
+- Uygulama: http://localhost:3000
 - Yerel admin bilgileri: `.local/access.txt` (Git dışında).
 - Bağımsız PostgreSQL kümesi: `.local/postgres`, yalnız localhost:55432.
 - YesSirPOS veritabanına bağlantı kurulmaz.

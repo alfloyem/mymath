@@ -7,7 +7,7 @@
     "node": ">=24.11 <25"
   },
   "scripts": {
-    "dev": "nuxt dev --host 127.0.0.1 --port 3100",
+    "dev": "nuxt dev --host localhost",
     "build": "prisma generate && nuxt build",
     "start": "node .output/server/index.mjs",
     "postinstall": "nuxt prepare && prisma generate",

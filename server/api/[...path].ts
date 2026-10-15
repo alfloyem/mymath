@@ -146,7 +146,8 @@ export default defineEventHandler(async event => {
           await tx.invitation.updateMany({ where: { studentId, revokedAt: null }, data: { revokedAt: new Date() } })
           await tx.invitation.create({ data: { studentId, tokenHash: digest(token), expiresAt: new Date(Date.now() + 30 * 86400000) } })
         })
-        return { url: `${process.env.APP_URL || getRequestURL(event).origin}/davet/${token}` }
+        const appOrigin = process.env.NODE_ENV === 'development' ? getRequestURL(event).origin : new URL(process.env.APP_URL || getRequestURL(event).origin).origin
+        return { url: `${appOrigin}/davet/${token}` }
       }
       if (path[1] && method === 'DELETE') {
         await db.$transaction([db.student.delete({ where: { id: path[1] } }), db.auditLog.create({ data: audit('STUDENT_DELETE', path[1]) })])
