@@ -9,6 +9,7 @@ export function useErrorMessage() {
     'Çok fazla deneme. Daha sonra tekrar deneyin.': 'tooManyAttempts',
     'İlişkili kayıtlar var. Önce öğrencileri taşıyın ve sınavları kaldırın.': 'relatedRecords',
     'Bu kayıt zaten var.': 'recordExists',
+    'Kullanıcı adı zaten kullanılıyor.': 'recordExists',
     'Talep zaten işlenmiş.': 'requestProcessed',
     'Bu sınav kapalı.': 'examClosed',
     'Öğrenci bu sınavın grubunda değil.': 'wrongGroup',

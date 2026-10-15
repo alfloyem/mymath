@@ -69,7 +69,7 @@ Entegrasyon testi çalışan sunucu + `.env` admin bilgilerini kullanır, kendi 
 
 ## Üretim
 
-`APP_URL` gerçek HTTPS adresi olmalı; `NODE_ENV=production`, `DATABASE_URL`, `PORT`, `HOST` işletim ortamından verilmelidir. `pnpm db:deploy` ve tek sefer `pnpm db:seed` sonrası `pnpm build`, `pnpm start` kullanılır. `.env` geliştirme/CLI içindir; üretim Node sunucusu ortam değişkenlerini servis yöneticisinden almalıdır. HTTPS reverse proxy, PostgreSQL yedeği ve kısıtlı uygulama DB rolü kurulmalıdır.
+`APP_URL` gerçek HTTPS adresi olmalı; `NODE_ENV=production`, `DATABASE_URL`, `PORT`, `HOST` işletim ortamından verilmelidir. `pnpm db:deploy` ve tek sefer `pnpm db:seed` sonrası `pnpm build`, `pnpm start` kullanılır. Başlatıcı Nitro'nun modüller yüklenmeden önce gerçek dosya URL'sini görmesini sağlar; Windows'ta Prisma'nın `file:///_entry.js` hatasını önler. `.env` geliştirme/CLI içindir; üretim Node sunucusu ortam değişkenlerini servis yöneticisinden almalıdır. HTTPS reverse proxy, PostgreSQL yedeği ve kısıtlı uygulama DB rolü kurulmalıdır.
 
 Oturumlar HttpOnly/SameSite=Lax çerezlerinde, SHA-256 token özetiyle DB'de tutulur; üretimde Secure çerezi kullanılır. Şifre onayları, transfer, sonuç kaydı ve silmeler denetim kaydı bırakır. Şifre taleplerinde öğrenci satırı kilidi ve tek bekleyen talep indeksi eşzamanlı işlemleri korur. Bu ilk sürümde giriş sınırlandırma tek süreç belleğindedir; çok sunuculu dağıtımda paylaşımlı Redis benzeri depoya geçirilmelidir. Denetim günlüğü/sona eren oturumlar için saklama ve temizleme süresi üretim ihtiyacına göre belirlenmelidir.
 
@@ -80,3 +80,7 @@ Güncel arayüz, veri yükleme ve güvenlik kontrolünün kapsamı/sınırları:
 ## SPA ve veri önbelleği
 
 Nuxt ilk sayfayı sunucuda oluşturur; sonraki gezinme istemcide gerçekleşir. Yönetim bölümleri ilk açılışta kurulur ve tekrar ziyaretlerde filtre, sıralama ve sayfa durumunu korur. Öğrenci listeleri/profiller 5 dakika, şifre bildirimleri 15 saniye süreyle yalnız oturum belleğinde tutulur (en fazla 32 kaynak). Aynı kaynağın eşzamanlı istekleri birleştirilir; kayıt değişiklikleri ilgili önbelleği geçersizleştirir. Başlıktaki yenileme düğmesi güncel bölümü yeniden sorgular. Çıkışta önbellek temizlenir; kişisel veriler disk önbelleğine yazılmaz. PWA/offline desteği eklenmemiştir. Listelerin sayfalaması halen istemcidedir.
+
+Yönetim rotaları Nuxt `pages/[section].vue` üzerinden `/groups`, `/students` ve `/exams` yollarını kullanır. Ortak page key görünümü korur; grup kapsamı `/students?group=...` ile paylaşılabilir. `/` gruplara yönlenir. Giriş `/login`, öğrenci hesabı `/account`, kişisel davet `/invite/:token` yolundadır; eski Türkçe yollar yönlendirilir.
+
+Giriş yalnız kullanıcı adı ve şifre alır; rol sunucuda belirlenir. Öğrenci kullanıcı adı ayrı ve benzersizdir. Öğrenci formunda boş bırakılırsa otomatik üretilir; güvenlik penceresi ve kişisel davette gösterilir. Kullanıcı adı değişikliği mevcut öğrenci ID'sini, sınavlarını veya şifresini değiştirmez. Mevcut öğrencilerin kullanıcı adları migration ile doldurulur. Rota/giriş HTTP kontrolü: çalışan yerel sunucuda `pnpm exec tsx scripts/test-routing-auth.ts` (yalnız kendi geçici kayıtlarını oluşturur/temizler).

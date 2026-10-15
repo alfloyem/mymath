@@ -6,6 +6,7 @@ const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.
 try {
   const username = process.env.ADMIN_USERNAME || 'admin'
   const password = process.env.ADMIN_PASSWORD
+  if (await db.student.findUnique({ where: { username: username.toLowerCase() } })) throw new Error('Admin kullanıcı adı başka bir hesapta kullanılıyor.')
   if (!password || password.length < 12 || password === 'SET_A_STRONG_PASSWORD') throw new Error('ADMIN_PASSWORD en az 12 karakter olmalıdır.')
   if (await db.admin.findUnique({ where: { username } })) console.log('Admin zaten var; şifresi değiştirilmedi.')
   else if (await db.admin.count()) throw new Error('Bu sistemde yalnız bir ana admin olabilir.')

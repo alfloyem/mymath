@@ -21,6 +21,7 @@ model Group {
 }
 model Student {
   id String @id @default(cuid())
+  username String @unique
   firstName String
   lastName String?
   birthDate DateTime? @db.Date

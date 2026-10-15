@@ -8,13 +8,14 @@ import { grade } from '../services/grading'
 const password = z.string().min(8, 'Şifre en az 8 karakter olmalıdır.').max(72).refine(v => Buffer.byteLength(v, 'utf8') <= 72, 'Şifre UTF-8 olarak en fazla 72 bayt olabilir.')
 const studentFields = z.object({
   firstName: z.string().trim().min(1).max(80), lastName: z.string().trim().max(80).nullable().optional(),
+  username: z.string().trim().toLowerCase().regex(/^[a-z0-9._-]{3,60}$/).or(z.literal('')).optional(),
   phone: z.string().trim().max(30).nullable().optional(),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => { const d = new Date(v); return !isNaN(+d) && d.toISOString().slice(0, 10) === v && d <= new Date() }, 'Geçerli bir doğum tarihi girin.').nullable().optional(),
   groupId: z.string().min(1), password: password.optional()
 })
 const answerKeySchema = z.array(z.enum(['A', 'B', 'C', 'D', 'E'])).min(1).max(200)
 const answersSchema = z.array(z.enum(['A', 'B', 'C', 'D', 'E']).nullable()).max(200)
-const publicStudent = { id: true, firstName: true, lastName: true, phone: true, birthDate: true, groupId: true, createdAt: true }
+const publicStudent = { id: true, username: true, firstName: true, lastName: true, phone: true, birthDate: true, groupId: true, createdAt: true }
 const notFound = () => createError({ statusCode: 404, statusMessage: 'Kayıt bulunamadı.' })
 
 export default defineEventHandler(async event => {
@@ -34,13 +35,14 @@ export default defineEventHandler(async event => {
     }
     if (path.join('/') === 'auth/login' && method === 'POST') {
       rateLimit(event, 'login')
-      const input = z.object({ username: z.string().min(1).max(100), password: z.string().min(1).max(72), role: z.enum(['ADMIN', 'STUDENT']).default('ADMIN') }).parse(await body())
-      const user = input.role === 'ADMIN' ? await db.admin.findUnique({ where: { username: input.username } }) : await db.student.findUnique({ where: { id: input.username } })
+      const input = z.object({ username: z.string().trim().min(1).max(100), password: z.string().min(1).max(72) }).parse(await body())
+      const admin = await db.admin.findUnique({ where: { username: input.username } })
+      const user = admin || await db.student.findUnique({ where: { username: input.username.toLowerCase() } })
       // Dummy bcrypt hash keeps unknown-user verification comparable in cost.
       const valid = await verifyPassword(input.password, user?.passwordHash || '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxTqR0LUDfmHaYsEIz6wKNGO9qG')
       if (!user?.passwordHash || !valid) throw createError({ statusCode: 401, statusMessage: 'Giriş bilgileri geçersiz veya şifre henüz onaylanmadı.' })
-      await createSession(event, input.role === 'ADMIN' ? { adminId: user.id } : { studentId: user.id })
-      return { ok: true }
+      await createSession(event, admin ? { adminId: user.id } : { studentId: user.id })
+      return { ok: true, role: admin ? 'ADMIN' : 'STUDENT' }
     }
     if (path.join('/') === 'auth/logout' && method === 'POST') {
       const token = getCookie(event, 'mymath_session')
@@ -52,7 +54,7 @@ export default defineEventHandler(async event => {
       rateLimit(event, 'invite', 40)
       const invitation = await db.invitation.findUnique({ where: { tokenHash: digest(path[1]) }, include: { student: true } })
       if (!invitation || invitation.revokedAt || invitation.expiresAt < new Date()) throw createError({ statusCode: 410, statusMessage: 'Bağlantı iptal edilmiş veya süresi dolmuş. Yöneticinizden yeni bağlantı isteyin.' })
-      if (method === 'GET') return { firstName: invitation.student.firstName, hasPassword: !!invitation.student.passwordHash, studentId: invitation.studentId }
+      if (method === 'GET') return { firstName: invitation.student.firstName, hasPassword: !!invitation.student.passwordHash, username: invitation.student.username }
       if (method === 'POST') {
         const input = z.object({ password }).parse(await body())
         const passwordHash = await hashPassword(input.password)
@@ -118,10 +120,12 @@ export default defineEventHandler(async event => {
       }
       if ((method === 'POST' && !path[1]) || (method === 'PUT' && path[1] && !path[2])) {
         const input = studentFields.parse(await body())
-        const { password: newPassword, birthDate, ...rest } = input
-        const data = { ...rest, birthDate: birthDate ? new Date(birthDate) : null, ...(newPassword ? { passwordHash: await hashPassword(newPassword) } : {}) }
+        const { password: newPassword, birthDate, username, ...rest } = input
+        const loginName = username || (method === 'POST' ? `student-${randomToken().slice(0, 10).toLowerCase()}` : undefined)
+        if (loginName && await db.admin.findFirst({ where: { username: { equals: loginName, mode: 'insensitive' } } })) throw createError({ statusCode: 409, statusMessage: 'Kullanıcı adı zaten kullanılıyor.' })
+        const data = { ...rest, ...(loginName ? { username: loginName } : {}), birthDate: birthDate ? new Date(birthDate) : null, ...(newPassword ? { passwordHash: await hashPassword(newPassword) } : {}) }
         return await db.$transaction(async tx => {
-          const student = method === 'POST' ? await tx.student.create({ data, select: publicStudent }) : await tx.student.update({ where: { id: path[1] }, data, select: publicStudent })
+          const student = method === 'POST' ? await tx.student.create({ data: { ...data, username: loginName! }, select: publicStudent }) : await tx.student.update({ where: { id: path[1] }, data, select: publicStudent })
           if (newPassword) {
             await tx.session.deleteMany({ where: { studentId: student.id } })
             await tx.passwordRequest.updateMany({ where: { studentId: student.id, status: 'PENDING' }, data: { status: 'SUPERSEDED', reviewedAt: new Date() } })
@@ -151,7 +155,7 @@ export default defineEventHandler(async event => {
           await tx.invitation.create({ data: { studentId, tokenHash: digest(token), expiresAt: new Date(Date.now() + 30 * 86400000) } })
         })
         const appOrigin = process.env.NODE_ENV === 'development' ? getRequestURL(event).origin : new URL(process.env.APP_URL || getRequestURL(event).origin).origin
-        return { url: `${appOrigin}/davet/${token}` }
+        return { url: `${appOrigin}/invite/${token}` }
       }
       if (path[1] && method === 'DELETE') {
         await db.$transaction([db.student.delete({ where: { id: path[1] } }), db.auditLog.create({ data: audit('STUDENT_DELETE', path[1]) })])

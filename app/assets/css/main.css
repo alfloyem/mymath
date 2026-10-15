@@ -103,9 +103,9 @@ tbody tr:hover { background: var(--surface-hover); }
 .sidebar .brand { padding: 0 10px; }
 .brand-mark { color: var(--text-primary); display: inline-flex; align-items: center; justify-content: center; }
 .nav { margin-top: 32px; display: grid; gap: 4px; }
-.nav button { display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px; border-radius: 8px; color: var(--text-muted); }
-.nav button:hover { background: var(--surface-hover); }
-.nav button.active { color: var(--text-primary); background: var(--surface-active); font-weight: 600; }
+.nav .nav-link { display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px; border-radius: 8px; color: var(--text-muted); }
+.nav .nav-link:hover { background: var(--surface-hover); }
+.nav .nav-link.active { color: var(--text-primary); background: var(--surface-active); font-weight: 600; }
 .sidebar-footer { margin-top: auto; display: flex; align-items: center; gap: 8px; padding: 16px 4px 0; }
 .content { padding: 30px 32px; max-width: 1500px; width: 100%; margin: 0 auto; }
 .page-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
@@ -140,7 +140,7 @@ tbody tr:hover { background: var(--surface-hover); }
 /* Shared interaction rhythm: restrained surfaces, visible and continuous motion. */
 :root { --ease-ui: cubic-bezier(.4,0,.2,1); }
 body, .sidebar, .panel, .modal, .theme-popover, input, select, textarea { transition: background-color 280ms var(--ease-ui), border-color 280ms var(--ease-ui), color 280ms var(--ease-ui); }
-button, .btn, .icon-btn, .row-link { transition: background-color 220ms var(--ease-ui), color 220ms var(--ease-ui), opacity 220ms var(--ease-ui), transform 220ms var(--ease-ui), filter 220ms var(--ease-ui); }
+button, .btn, .icon-btn, .row-link, .nav-link { transition: background-color 220ms var(--ease-ui), color 220ms var(--ease-ui), opacity 220ms var(--ease-ui), transform 220ms var(--ease-ui), filter 220ms var(--ease-ui); }
 .btn:active:not(:disabled), .icon-btn:active:not(:disabled) { transform:scale(.95); }
 @media(hover:hover) { .btn:hover:not(:disabled) { transform:translateY(-1px); } .icon-btn:hover:not(:disabled) { transform:scale(1.08); } }
 .primary { background:var(--btn-primary-bg); color:var(--btn-primary-text); }
@@ -160,10 +160,10 @@ button, .btn, .icon-btn, .row-link { transition: background-color 220ms var(--ea
 .sidebar-collapsed .brand.sidebar-label { padding-inline:0; }
 .sidebar-brand .brand-toggle { width:56px; }
 .nav { margin-top:4px; gap:6px; flex:1; align-content:start; grid-template-columns:minmax(0,1fr); }
-.nav button { min-height:44px; padding:11px 19px; gap:0; border-radius:12px; position:relative; overflow:hidden; }
-.nav button .sidebar-label { padding-left:12px; }
-.sidebar-collapsed .nav button .sidebar-label { padding-left:0; }
-.nav button > .iconify { flex-shrink:0; }
+.nav .nav-link { min-height:44px; padding:11px 19px; gap:0; border-radius:12px; position:relative; overflow:hidden; }
+.nav .nav-link .sidebar-label { padding-left:12px; }
+.sidebar-collapsed .nav .nav-link .sidebar-label { padding-left:0; }
+.nav .nav-link > .iconify { flex-shrink:0; }
 .nav-count { font-size:11px; margin-left:auto; padding:1px 6px; border-radius:5px; color:var(--text-primary); background:color-mix(in srgb,var(--text-primary) 12%,transparent); }
 .sidebar-collapsed .nav-count { position:absolute; right:0; top:0; margin:0; font-size:9px; }
 .sidebar-footer { flex-direction:column; align-items:flex-start; gap:12px; padding:16px 8px 0; }
@@ -260,11 +260,11 @@ input.hue-slider { appearance:none; height:8px; background:linear-gradient(to ri
 
 /* Stable icon rail and moving active state, with no phantom flex gap. */
 .sidebar .nav { position:relative; }
-.sidebar .nav button { z-index:1; }
-.sidebar .nav button.active { background:transparent; }
+.sidebar .nav .nav-link { z-index:1; }
+.sidebar .nav .nav-link.active { background:transparent; }
 .nav-active-indicator { position:absolute; inset:0 0 auto; height:44px; border-radius:12px; background:var(--surface-active); transform:translateY(calc(var(--active-index,0) * 50px)); transition:transform 300ms var(--ease-ui),background-color 280ms var(--ease-ui); pointer-events:none; }
-.sidebar-collapsed .nav button { width:100%; height:44px; }
-.sidebar-collapsed .nav button > span:first-child { flex-shrink:0; }
+.sidebar-collapsed .nav .nav-link { width:100%; height:44px; }
+.sidebar-collapsed .nav .nav-link > span:first-child { flex-shrink:0; }
 .theme-modes { position:relative; isolation:isolate; }
 .mode-indicator { position:absolute; left:3px; top:3px; bottom:3px; width:calc((100% - 6px) / 3); border-radius:7px; background:var(--surface-active); transform:translateX(calc(var(--mode-index,0) * 100%)); transition:transform 260ms var(--ease-ui),background-color 280ms var(--ease-ui); pointer-events:none; }
 .theme-modes button { z-index:1; position:relative; background:transparent; }
@@ -272,11 +272,11 @@ input.hue-slider { appearance:none; height:8px; background:linear-gradient(to ri
 .theme-modes button:active { transform:scale(.94); }
 .hue-reset .iconify { opacity:1; }
 .hue-reset:active { transform:scale(.9); }
-@media(hover:hover) { .nav button:hover .iconify { transform:translateY(-1px); } .nav button .iconify { transition:transform 220ms var(--ease-ui); } }
-@media(max-width:1023px) { .sidebar-collapsed .nav button .sidebar-label { padding-left:12px; } }
+@media(hover:hover) { .nav .nav-link:hover .iconify { transform:translateY(-1px); } .nav .nav-link .iconify { transition:transform 220ms var(--ease-ui); } }
+@media(max-width:1023px) { .sidebar-collapsed .nav .nav-link .sidebar-label { padding-left:12px; } }
 @media(prefers-reduced-motion:reduce) { *, *::before, *::after { transition:none!important; animation:none!important; } }
 /* Pressed feedback must win over the desktop hover transform. */
 .btn:active:not(:disabled) { transform:translateY(0) scale(.96); }
 .icon-btn:active:not(:disabled), .brand-toggle:active { transform:scale(.91); }
-.nav button:active { transform:scale(.97); }
+.nav .nav-link:active { transform:scale(.97); }
 .copy-field .icon-btn:active:not(:disabled) { transform:translateY(-50%) scale(.92); }

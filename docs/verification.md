@@ -10,6 +10,8 @@
 
 ## Kanıt ve sınırlar
 
+- Nuxt 4.6.1 dosya tabanlı rotalar: `/groups`, `/students`, `/exams`, `/login`, `/account`, `/invite/:token`. `scripts/test-routing-auth.ts` geliştirme ve yerel üretim sunucusunda başarılı: doğrudan rota/grup query render'ı, eski adres yönlendirmeleri, rol seçimsiz admin/öğrenci girişi, ID ile girişin reddi, otomatik/benzersiz kullanıcı adları, istemci rolünün yetki vermemesi ve öğrenci/admin yetki ayrımı. Kullanıcı adı migration'ı yerel PostgreSQL'e uygulandı. Windows'ta Nitro/Prisma dosya URL'si başlangıç hatası `scripts/start.mjs` ile düzeltildi; üretim sunucusu geçici 3101 portunda, o adrese eşleşen APP_URL ile test edilip kapatıldı. Tarayıcı geri/ileri etkileşimi gözle denenmedi.
+
 - 20 birim testi: değerlendirme, çeviri anahtarları/yer tutucular, origin, tablo sıralaması, tema kontrastı, parçalı JSON/boyut sınırı ve kaynak önbelleği. Önbellek testleri ortak istek, süre aşımı, hedefli geçersizleştirme, eski yanıtın engellenmesi, hata sonrası yeniden deneme ve kapasite sınırını kontrol eder. Tip kontrolü ve üretim derlemesi başarılı.
 - Tip kontrolü başarılı. HTTP üzerinden admin girişi, yetkisiz istek 401, yabancı origin 403, bozuk JSON 400, chunked gövde 413, hafif pano/bildirim yanıtları ve ID göstermeyen öğrenci giriş ekranı kontrol edildi.
 - Tarayıcı kullanılmadı. Dışarı tıklama, görsel hizalama ve hareketler gerçek tarayıcıda gözle doğrulanmadı; kod düzeyinde düzeltildi.
