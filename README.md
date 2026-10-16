@@ -42,7 +42,7 @@ Seed mevcut adminin şifresini değiştirmez ve ikinci admin oluşturmaz. Tek ad
 - **Arayüz:** masaüstünde daralabilen sidebar, mobilde perdeyle açılan menü; ortak tabloda sıralama, sayfalama ve sabit başlık. Grup sırası değişimleri, hover/basış ve modallar animasyonludur; azaltılmış hareket tercihi desteklenir.
 - **Görünüm ve dil:** renk şeridi ve renk sıfırlama düğmesi, açık/koyu/sistem modu; Varsayılan dil Azərbaycan dili; English ve Русский seçenekleri de bulunur. Dil ve sidebar tercihi çerezlerde saklanır. Varsayılan ve sıfırlama rengi yeşildir. Yeni öğrenci formunda tarih alanı gösterilmez; önceden kaydedilmiş doğum tarihleri korunur.
 
-Başarı = doğru / toplam soru × 100. Yanlışlar doğruları götürmez. Bu ilk sürümde PDF/görselden soru çözme, OCR, açık uçlu cevap değerlendirme ve sembolik matematik motoru yoktur. Dosya yüklemesi cevap verilerini okur; orijinal dosya içeriği saklanmaz, sonuçla birlikte dosya adı saklanır. İkinci aşama motoru `server/services` altına eklenebilir; veri modeli ve arayüz temel akışları hazırdır.
+Yeni sınavlar JSON’dan A4 soru/cavap PDF’leri ve konum kalıbı üretir. PDF/PNG/JPEG cevap taramaları hizalanıp optik olarak okunur; belirsiz işaretleri öğretmen onaylar. Açık soruların her biri öğretmenden 0–1 puan alır. Başarı = (doğru test sayısı + açık soru puanları) / toplam soru × 100. Yanlışlar doğruları götürmez. Eski sınavların metin/JSON değerlendirmesi korunur. El yazısı OCR’i veya otomatik açık cevap çözümü yoktur. Kurulum, JSON ve sınırlar: [docs/exam-engine.md](docs/exam-engine.md).
 
 ## Yapı
 
