@@ -42,6 +42,7 @@ Sürüm numaralarını bu belgeden ezbere kopyalama. Mevcut `package.json`, kili
 - Tema uygularken [references/theme.md](references/theme.md) dosyasını oku. Başka işlerde bu ayrıntıyı yüklemene gerek yok.
 - Tablo, sidebar, mobil görünüm, animasyon veya i18n işinde [references/interface.md](references/interface.md) dosyasını oku. Düşük gölge kullanımı, ortak tablo bileşeni ve açılır/kapanır responsive sidebar bu dilin parçalarıdır.
 - Gezinme/önbellek işinde [references/interface.md](references/interface.md) içindeki SPA bölümünü uygula. Cache'i PWA, service worker veya kalıcı hassas veri depolamasıyla karıştırma.
+- JSON/PDF motoru, tarama/değerlendirme veya dış AI uygulamasına yönlendirme işinde [references/engineering.md](references/engineering.md) içindeki üretim, doğrulama ve sade kullanım kurallarını uygula.
 
 ## Çalışma düzeni
 
