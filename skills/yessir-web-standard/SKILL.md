@@ -52,6 +52,7 @@ Sürüm numaralarını bu belgeden ezbere kopyalama. Mevcut `package.json`, kili
 4. Tarayıcıyı varsayılan olarak kullanma. Kullanıcı tarayıcı/gerçek arayüz testi istediğinde kullan; aksi halde terminal, tip kontrolü, uygun testler ve gerekirse HTTP kontrolleriyle ilerle. Bunları görsel doğrulama diye sunma.
 5. Değişikliğe uygun kontrolleri çalıştır; sonuçları kısa bildir. Sadece belge/skill değişikliğinde uygulamayı yeniden derleme. Gereksiz tekrar test ve uzun araç çıktılarından kaçın.
 6. Kapsama ait diff'i kontrol edip anlamlı bir commit at. Kullanıcının ilgisiz değişikliklerini topluca stage etme. Push/dağıtım yetkisini bu skill'den çıkarma.
+7. Üretim dağıtımında uygulama kodunu önce lokalde değiştir ve uygun kontrolleri yap; kullanıcı kontrolü kendisi yapacağını belirtirse bunu gözet. Ardından commit → push → sunucuda Git'ten çekme → sunucuda build → yalnız ilgili servisi güncelleme sırasını izle. Uygulama kaynak kodunu doğrudan sunucuda düzenleme. Ortam ve servis ayarlarını uygulama kodundan ayır; diğer projelere, verilere ve servislere dokunma.
 
 ## Teslim
 
