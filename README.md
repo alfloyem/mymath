@@ -84,3 +84,5 @@ Nuxt ilk sayfayı sunucuda oluşturur; sonraki gezinme istemcide gerçekleşir. 
 Yönetim rotaları Nuxt `pages/[section].vue` üzerinden `/groups`, `/students` ve `/exams` yollarını kullanır. Ortak page key görünümü korur; grup kapsamı `/students?group=...` ile paylaşılabilir. `/` gruplara yönlenir. Giriş `/login`, öğrenci hesabı `/account`, kişisel davet `/invite/:token` yolundadır; eski Türkçe yollar yönlendirilir.
 
 Giriş yalnız kullanıcı adı ve şifre alır; rol sunucuda belirlenir. Öğrenci kullanıcı adı ayrı ve benzersizdir. Öğrenci formunda boş bırakılırsa otomatik üretilir; güvenlik penceresi ve kişisel davette gösterilir. Kullanıcı adı değişikliği mevcut öğrenci ID'sini, sınavlarını veya şifresini değiştirmez. Mevcut öğrencilerin kullanıcı adları migration ile doldurulur. Rota/giriş HTTP kontrolü: çalışan yerel sunucuda `pnpm exec tsx scripts/test-routing-auth.ts` (yalnız kendi geçici kayıtlarını oluşturur/temizler).
+
+JSON hazırlamak için yeni sınav penceresindeki ChatGPT/Gemini/Claude kısayolları kullanılabilir. Hazır kılavuz kopyalanır; sonuç JSON olarak forma yapıştırılır. [AI akışı ve public kılavuz](docs/ai-assist.md).

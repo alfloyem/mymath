@@ -1,6 +1,7 @@
 import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-15',
+  runtimeConfig: { public: { aiGuideUrl: 'https://raw.githubusercontent.com/alfloyem/mymath/main/docs/ai-exam-guide.md' } },
   modules: ['@nuxt/icon', '@nuxtjs/color-mode', '@nuxtjs/i18n'],
   i18n: {
     defaultLocale: 'az', strategy: 'no_prefix',

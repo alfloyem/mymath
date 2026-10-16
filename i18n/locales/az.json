@@ -196,5 +196,10 @@
   "invalidExamDocument": "JSON-u yoxlayın: hər test sualında mövcud varianta uyğun answer (A–E) olmalıdır.",
   "engineBusy": "Başqa sənəd yoxlanılır. Bir az sonra yenidən cəhd edin.",
   "scanFailed": "Skan oxunmadı. Düzgün imtahanın bütün cavab səhifələrini, QR və dörd künc işarəsini daxil edin.",
-  "invalidEngineResult": "Bütün açıq suallara 0–1 bal verin və qeyri-müəyyən cavabları təsdiqləyin."
+  "invalidEngineResult": "Bütün açıq suallara 0–1 bal verin və qeyri-müəyyən cavabları təsdiqləyin.",
+  "aiAssistant": "Süni intellekt",
+  "openAiAssistant": "{name} ilə hazırla",
+  "aiPromptCopied": "Təlimat kopyalandı. Mesaj görünmürsə, söhbətə yapışdırın.",
+  "aiCopyFallback": "Təlimatı aşağıdakı sahədən kopyalayıb söhbətə yapışdırın.",
+  "aiGuidePrompt": "AI üçün təlimat"
 }

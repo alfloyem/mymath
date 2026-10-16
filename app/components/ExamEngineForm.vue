@@ -27,6 +27,7 @@ async function submit(){
 </script>
 <template>
   <form @submit.prevent="submit">
+    <ExamAiLinks />
     <div class="field"><label for="engine-group">{{t('group')}}</label><select id="engine-group" v-model="group" required :disabled="busy"><option v-for="item in groups" :key="item.id" :value="item.id">{{item.name}}</option></select></div>
     <div class="field"><label for="engine-month">{{t('examMonth')}}</label><input id="engine-month" v-model="month" type="month" required :disabled="busy"></div>
     <div class="field"><label for="engine-file">JSON</label><input id="engine-file" type="file" accept=".json,application/json" :disabled="busy" @change="upload"></div>

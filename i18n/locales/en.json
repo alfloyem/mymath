@@ -196,5 +196,10 @@
   "invalidExamDocument": "Check the JSON: every choice question needs an answer (A–E) matching an existing option.",
   "engineBusy": "Another document is being processed. Try again shortly.",
   "scanFailed": "Scan could not be read. Include every answer page for the correct exam, its QR code and all four corner markers.",
-  "invalidEngineResult": "Score every open question from 0 to 1 and confirm uncertain answers."
+  "invalidEngineResult": "Score every open question from 0 to 1 and confirm uncertain answers.",
+  "aiAssistant": "AI assistant",
+  "openAiAssistant": "Prepare with {name}",
+  "aiPromptCopied": "Instructions copied. If no message appears, paste them into the chat.",
+  "aiCopyFallback": "Copy the instructions below and paste them into the chat.",
+  "aiGuidePrompt": "AI instructions"
 }

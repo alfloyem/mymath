@@ -196,5 +196,10 @@
   "invalidExamDocument": "JSON’u kontrol edin: her test sorusunda mevcut seçeneğe uygun answer (A–E) bulunmalıdır.",
   "engineBusy": "Başka bir belge işleniyor. Biraz sonra tekrar deneyin.",
   "scanFailed": "Tarama okunamadı. Doğru sınavın tüm cevap sayfalarını, QR kodunu ve dört köşe işaretini dahil edin.",
-  "invalidEngineResult": "Her açık soruya 0–1 puan verin ve belirsiz cevapları onaylayın."
+  "invalidEngineResult": "Her açık soruya 0–1 puan verin ve belirsiz cevapları onaylayın.",
+  "aiAssistant": "Yapay zekâ",
+  "openAiAssistant": "{name} ile hazırla",
+  "aiPromptCopied": "Kılavuz kopyalandı. Mesaj görünmüyorsa sohbete yapıştırın.",
+  "aiCopyFallback": "Aşağıdaki kılavuzu kopyalayıp sohbete yapıştırın.",
+  "aiGuidePrompt": "Yapay zekâ kılavuzu"
 }
