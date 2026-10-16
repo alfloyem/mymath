@@ -78,7 +78,19 @@ model Exam {
   status String @default("OPEN")
   createdAt DateTime @default(now())
   results Result[]
+  bundle ExamBundle?
   @@index([groupId, month])
+}
+model ExamBundle {
+  examId String @id
+  exam Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  document Json
+  questions Json
+  pattern Json
+  paperPdf Bytes
+  answerPdf Bytes
+  keyPdf Bytes
+  createdAt DateTime @default(now())
 }
 model Result {
   id String @id @default(cuid())
@@ -93,6 +105,8 @@ model Result {
   score Float
   topicAnalysis Json
   originalName String?
+  manualScores Json?
+  scanAnalysis Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@unique([examId, studentId])

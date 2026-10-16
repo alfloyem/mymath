@@ -21,7 +21,9 @@
     "test:integration": "tsx scripts/test-integration.ts",
     "local:db:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-db.ps1 start",
     "local:db:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-db.ps1 stop",
-    "local:db:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-db.ps1 status"
+    "local:db:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-db.ps1 status",
+    "test:engine": "tsx scripts/test-exam-engine.ts",
+    "test:engine:fixtures": "tsx scripts/test-engine-fixtures.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "1.2.142",
@@ -32,9 +34,13 @@
     "@prisma/client": "7.10.1",
     "bcryptjs": "3.0.3",
     "h3": "1.15.11",
+    "mathjax": "3.2.2",
     "nuxt": "4.6.1",
     "ofetch": "1.5.1",
+    "pdf-lib": "^1.17.1",
     "pg": "8.23.1",
+    "playwright-core": "^1.64.1",
+    "qrcode": "^1.5.4",
     "vue": "3.5.43",
     "zod": "^4.3.6"
   },
@@ -42,6 +48,7 @@
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "^24.0.0",
     "@types/pg": "8.23.1",
+    "@types/qrcode": "^1.5.6",
     "dotenv": "18.0.7",
     "prisma": "7.10.1",
     "tailwindcss": "4.3.3",

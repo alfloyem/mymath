@@ -1,0 +1,11 @@
+{
+  "mode": "imtahan",
+  "title": "Riyaziyyat · Nümunə",
+  "info": "Ad, soyad: ______________________",
+  "cols": 2,
+  "blocks": [
+    { "type": "q", "t": "$2+3$ neçədir?", "o": ["3", "4", "5", "6"], "answer": "C", "topic": "Toplama" },
+    { "type": "q", "t": "$3^2$ neçədir?", "o": ["9", "6", "3", "12", "8"], "answer": "A", "topic": "Qüvvət" },
+    { "type": "q", "t": "$2x+4=10$ tənliyini həll edin. Həllini yazın.", "space": 150, "topic": "Tənlik" }
+  ]
+}

@@ -13,6 +13,7 @@ export default defineNuxtConfig({
   },
   colorMode: { preference: 'system', fallback: 'light', classSuffix: '', storage: 'cookie', storageKey: 'mymath-color-mode' },
   css: ['~/assets/css/main.css'],
+  nitro: { serverAssets: [{ baseName: 'engines', dir: 'resources/engines', ignore: ['**/__pycache__/**'] }, { baseName: 'mathjax', dir: 'node_modules/mathjax/es5', pattern: 'tex-svg-full.js' }] },
   vite: { plugins: [tailwindcss()] },
   icon: { serverBundle: { collections: ['lucide'] } },
   typescript: { strict: true },

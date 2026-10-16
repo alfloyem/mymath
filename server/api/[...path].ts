@@ -4,6 +4,7 @@ import { db } from '../utils/db'
 import { readBoundedJson } from '../utils/body'
 import { createSession, currentSession, digest, hashPassword, randomToken, rateLimit, requireAdmin, verifyPassword } from '../utils/security'
 import { grade } from '../services/grading'
+import { gradeDocument, type Question } from '../../shared/examDocument'
 
 const password = z.string().min(8, 'Şifre en az 8 karakter olmalıdır.').max(72).refine(v => Buffer.byteLength(v, 'utf8') <= 72, 'Şifre UTF-8 olarak en fazla 72 bayt olabilir.')
 const studentFields = z.object({
@@ -82,9 +83,9 @@ export default defineEventHandler(async event => {
       const [groups, requests, exams] = await Promise.all([
         db.group.findMany({ orderBy: [{ position: 'asc' }, { createdAt: 'asc' }], include: { _count: { select: { students: true, exams: true } } } }),
         db.passwordRequest.findMany({ where: { status: 'PENDING' }, select: { id: true, createdAt: true, student: { select: publicStudent } }, orderBy: { createdAt: 'desc' } }),
-        db.exam.findMany({ include: { group: { select: { name: true } }, _count: { select: { results: true } } }, orderBy: [{ month: 'desc' }, { createdAt: 'desc' }] })
+        db.exam.findMany({ include: { bundle: { select: { examId: true } }, group: { select: { name: true } }, _count: { select: { results: true } } }, orderBy: [{ month: 'desc' }, { createdAt: 'desc' }] })
       ])
-      return { groups, requests, exams: exams.map(({ answerKey, topics, ...exam }) => ({ ...exam, questionCount: (answerKey as string[]).length })) }
+      return { groups, requests, exams: exams.map(({ answerKey, topics, bundle, ...exam }) => ({ ...exam, hasEngine: !!bundle, questionCount: (answerKey as string[]).length })) }
     }
     if (path[0] === 'groups') {
       if (method === 'POST' && !path[1]) {
@@ -194,14 +195,18 @@ export default defineEventHandler(async event => {
       }
     }
     if (path[0] === 'results' && method === 'POST') {
-      const input = z.object({ examId: z.string(), studentId: z.string(), answers: answersSchema, originalName: z.string().max(200).optional() }).parse(await body())
+      const input = z.object({ examId: z.string(), studentId: z.string(), answers: answersSchema, manualScores: z.record(z.string(),z.number().min(0).max(1)).default({}), scanAnalysis: z.object({readings:z.array(z.object({number:z.number().int().min(1).max(200),status:z.enum(['marked','blank','multiple','uncertain']),confirmed:z.boolean()})).max(200)}).optional(), originalName: z.string().max(200).optional() }).parse(await body())
       return await db.$transaction(async tx => {
         const [exam, student] = await Promise.all([tx.exam.findUnique({ where: { id: input.examId } }), tx.student.findUnique({ where: { id: input.studentId } })])
         if (!exam || !student) throw notFound()
         if (exam.status !== 'OPEN') throw createError({ statusCode: 409, statusMessage: 'Bu sınav kapalı.' })
         const previous = await tx.result.findUnique({ where: { examId_studentId: { examId: exam.id, studentId: student.id } } })
         if (exam.groupId !== student.groupId && !previous) throw createError({ statusCode: 400, statusMessage: 'Öğrenci bu sınavın grubunda değil.' })
-        const analysis = grade(exam.answerKey as string[], input.answers, exam.topics as string[])
+        const bundle = await tx.examBundle.findUnique({where:{examId:exam.id},select:{questions:true}})
+        if(input.scanAnalysis?.readings.some(r=>['multiple','uncertain'].includes(r.status)&&!r.confirmed)) throw createError({statusCode:400,statusMessage:'Confirm uncertain scan answers before saving'})
+        let analysis
+        try { analysis = bundle ? gradeDocument(bundle.questions as unknown as Question[],input.answers,input.manualScores) : grade(exam.answerKey as string[], input.answers, exam.topics as string[]) }
+        catch(error:any){throw createError({statusCode:400,statusMessage:'Invalid result',data:{message:error.message}})}
         const data = { ...input, ...analysis }
         const result = await tx.result.upsert({ where: { examId_studentId: { examId: exam.id, studentId: student.id } }, create: data, update: data })
         await tx.auditLog.create({ data: audit('RESULT_SAVE', result.id) })
