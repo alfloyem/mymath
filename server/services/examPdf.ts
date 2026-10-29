@@ -29,7 +29,8 @@ async function prepare(page:Page,html:string,documentEngine:boolean,mathjax:stri
   await page.evaluate('globalThis.__name = (fn) => fn')
   await page.addScriptTag({content:engine.script})
   if(documentEngine){await page.addScriptTag({content:mathjax});await page.evaluate(async()=>{await (window as any).MathJax.startup.promise})}
-  await page.addStyleTag({content:'.editor{display:none!important}html,body{margin:0!important;background:white!important} .page{width:210mm!important;height:297mm!important;margin:0!important;zoom:1!important}.page:last-child{break-after:auto!important}'})
+  const editorPrintCss=documentEngine?'.app-shell{position:static!important;display:block!important;background:white!important}.topbar,.toolbox,.json-panel{display:none!important}.workspace{display:block!important}#pages{height:auto!important;overflow:visible!important;padding:0!important}':'.editor{display:none!important}'
+  await page.addStyleTag({content:`${editorPrintCss}html,body{margin:0!important;background:white!important}.page{width:210mm!important;height:297mm!important;margin:0!important;zoom:1!important}.page:last-child{break-after:auto!important}`})
   await page.emulateMedia({media:'screen',colorScheme:'light'})
 }
 export function makeAnswerDocument(title:string,questions:Question[]) {

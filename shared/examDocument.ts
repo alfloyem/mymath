@@ -4,9 +4,10 @@ const text = z.string().max(10000)
 const dimension = z.number().finite().min(0).max(1200)
 const figure = z.object({ type: z.literal('fig').optional(), w: dimension.optional(), h: dimension.optional(), o: z.tuple([z.number().finite(), z.number().finite(), z.number().positive().max(1000)]).optional(), items: z.array(z.array(z.unknown()).max(8)).max(300) })
 const block: z.ZodType<any> = z.lazy(() => z.object({
-  type: z.enum(['h', 'p', 'note', 'ps', 'eq', 'list', 'row', 'gap', 'pb', 'fig', 'q']), t: text.optional(),
+  type: z.enum(['h', 'p', 'note', 'ps', 'eq', 'list', 'row', 'gap', 'pb', 'fig', 'q', 'stamp']), t: text.optional(),
   l: z.number().int().min(1).max(2).optional(), m: text.optional(), n: z.union([z.boolean(), z.number().int().min(0).max(200)]).optional(),
   items: z.array(z.unknown()).max(300).optional(), w: z.union([dimension, z.array(z.number().positive().max(10)).max(4)]).optional(), h: dimension.optional(),
+  x: z.number().int().min(0).max(1200).optional(), y: z.number().int().min(0).max(1200).optional(), width: z.number().int().min(1).max(1200).optional(), canvasHeight: z.number().int().min(1).max(1200).optional(), page: z.number().int().min(0).max(49).optional(), penLayer: z.boolean().optional(),
   o: z.union([z.array(text).min(2).max(5), z.tuple([z.number().finite(), z.number().finite(), z.number().positive().max(1000)])]).optional(),
   fig: figure.optional(), space: dimension.optional(), oc: z.number().int().min(1).max(5).optional(), start: z.number().int().min(1).max(200).optional(),
   answer: z.enum(['A', 'B', 'C', 'D', 'E']).optional(), topic: z.string().trim().max(80).optional()
@@ -14,7 +15,7 @@ const block: z.ZodType<any> = z.lazy(() => z.object({
 export const documentSchema = z.object({
   mode: z.enum(['imtahan', 'qayda']), title: z.string().trim().min(1).max(120), info: text.optional(), watermark: z.string().max(120).optional(),
   startAt: z.literal(1).optional(), cols: z.number().int().min(1).max(3).optional(), letters: z.string().regex(/^(ABCDE|abcde)$/).optional(),
-  space: dimension.optional(), perCol: z.number().int().min(1).max(30).optional(), fs: z.number().min(9).max(24).optional(), blocks: z.array(block).min(1).max(400)
+  space: dimension.optional(), perCol: z.number().int().min(1).max(30).optional(), fs: z.number().min(9).max(24).optional(), canvas: z.boolean().optional(), pageCount: z.number().int().min(1).max(50).optional(), blocks: z.array(block).min(1).max(400)
 })
 export type Question = { number: number; kind: 'choice' | 'manual'; answer: string | null; options: string[]; topic: string }
 export type ExamDocument = z.infer<typeof documentSchema>
