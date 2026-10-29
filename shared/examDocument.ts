@@ -15,7 +15,7 @@ const block: z.ZodType<any> = z.lazy(() => z.object({
 export const documentSchema = z.object({
   mode: z.enum(['imtahan', 'qayda']), title: z.string().trim().min(1).max(120), info: text.optional(), watermark: z.string().max(120).optional(),
   startAt: z.literal(1).optional(), cols: z.number().int().min(1).max(3).optional(), letters: z.string().regex(/^(ABCDE|abcde)$/).optional(),
-  space: dimension.optional(), perCol: z.number().int().min(1).max(30).optional(), fs: z.number().min(9).max(24).optional(), canvas: z.boolean().optional(), pageCount: z.number().int().min(1).max(50).optional(), blocks: z.array(block).min(1).max(400)
+  space: dimension.optional(), perCol: z.number().int().min(1).max(30).optional(), fs: z.number().min(9).max(24).optional(), canvas: z.boolean().optional(), pageCount: z.number().int().min(1).max(50).optional(), gridVisible: z.boolean().optional(), snapToGrid: z.boolean().optional(), gridSize: z.number().int().min(4).max(64).optional(), blocks: z.array(block).min(1).max(400)
 })
 export type Question = { number: number; kind: 'choice' | 'manual'; answer: string | null; options: string[]; topic: string }
 export type ExamDocument = z.infer<typeof documentSchema>
